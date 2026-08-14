@@ -1,0 +1,14 @@
+Build a Smart Self Checklist web application.
+
+Requirements:
+- Current Date
+- Current Day
+- Live Digital Clock
+- Add Task
+- Mark Completed
+- Delete Task
+- Local Storage
+- Responsive Design
+- Modern Dashboard UI
+
+Use HTML, CSS and JavaScript.

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:5173/ -->
+<html lang="en" data-darkreader-mode="dynamic" data-darkreader-scheme="dark" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style class="darkreader darkreader--fallback" media="screen"></style><style class="darkreader darkreader--user-agent" media="screen">@layer {
+html {
+    background-color: var(--darkreader-background-ffffff, #181a1b) !important;
+}
+html {
+    color-scheme: dark !important;
+}
+iframe {
+    color-scheme: dark !important;
+}
+html, body {
+    background-color: var(--darkreader-background-ffffff, #181a1b);
+}
+html, body {
+    border-color: var(--darkreader-border-4c4c4c, #736b5e);
+    color: var(--darkreader-text-000000, #e8e6e3);
+}
+a {
+    color: var(--darkreader-text-0040ff, #3d96ff);
+}
+table {
+    border-color: var(--darkreader-border-808080, #545b5e);
+}
+mark {
+    color: var(--darkreader-text-000000, #e8e6e3);
+}
+::placeholder {
+    color: var(--darkreader-text-a9a9a9, #b2aba1);
+}
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    background-color: var(--darkreader-background-faffbd, #444800) !important;
+    color: var(--darkreader-text-000000, #e8e6e3) !important;
+}
+::selection {
+    background-color: var(--darkreader-background-0060d4, #0051b2) !important;
+    color: var(--darkreader-text-ffffff, #e8e6e3) !important;
+}
+::-moz-selection {
+    background-color: var(--darkreader-background-0060d4, #0051b2) !important;
+    color: var(--darkreader-text-ffffff, #e8e6e3) !important;
+}
+}</style><style class="darkreader darkreader--text" media="screen"></style><style class="darkreader darkreader--invert" media="screen">.jfk-bubble.gtx-bubble, .captcheck_answer_label > input + img, span#closed_text > img[src^="https://www.gstatic.com/images/branding/googlelogo"], span[data-href^="https://www.hcaptcha.com/"] > #icon, img.Wirisformula, a[data-testid="headerMediumLogo"]>svg, .d2l-navigation-link-image-container, .d2l-iframe-loading-container, div.mc-ip-hide[style*="background: rgb(255, 255, 255) !important"], [style*="color: rgb(0, 0, 1) !important;"] {
+    filter: invert(100%) hue-rotate(180deg) contrast(90%) !important;
+}</style><style class="darkreader darkreader--inline" media="screen">[data-darkreader-inline-bgcolor] {
+  background-color: var(--darkreader-inline-bgcolor) !important;
+}
+[data-darkreader-inline-bgimage] {
+  background-image: var(--darkreader-inline-bgimage) !important;
+}
+[data-darkreader-inline-border] {
+  border-color: var(--darkreader-inline-border) !important;
+}
+[data-darkreader-inline-border-bottom] {
+  border-bottom-color: var(--darkreader-inline-border-bottom) !important;
+}
+[data-darkreader-inline-border-left] {
+  border-left-color: var(--darkreader-inline-border-left) !important;
+}
+[data-darkreader-inline-border-right] {
+  border-right-color: var(--darkreader-inline-border-right) !important;
+}
+[data-darkreader-inline-border-top] {
+  border-top-color: var(--darkreader-inline-border-top) !important;
+}
+[data-darkreader-inline-boxshadow] {
+  box-shadow: var(--darkreader-inline-boxshadow) !important;
+}
+[data-darkreader-inline-color] {
+  color: var(--darkreader-inline-color) !important;
+}
+[data-darkreader-inline-fill] {
+  fill: var(--darkreader-inline-fill) !important;
+}
+[data-darkreader-inline-stroke] {
+  stroke: var(--darkreader-inline-stroke) !important;
+}
+[data-darkreader-inline-outline] {
+  outline-color: var(--darkreader-inline-outline) !important;
+}
+[data-darkreader-inline-stopcolor] {
+  stop-color: var(--darkreader-inline-stopcolor) !important;
+}
+[data-darkreader-inline-bg] {
+  background: var(--darkreader-inline-bg) !important;
+}
+[data-darkreader-inline-border-short] {
+  border: var(--darkreader-inline-border-short) !important;
+}
+[data-darkreader-inline-border-bottom-short] {
+  border-bottom: var(--darkreader-inline-border-bottom-short) !important;
+}
+[data-darkreader-inline-border-left-short] {
+  border-left: var(--darkreader-inline-border-left-short) !important;
+}
+[data-darkreader-inline-border-right-short] {
+  border-right: var(--darkreader-inline-border-right-short) !important;
+}
+[data-darkreader-inline-border-top-short] {
+  border-top: var(--darkreader-inline-border-top-short) !important;
+}
+[data-darkreader-inline-invert] {
+    filter: invert(100%) hue-rotate(180deg);
+}</style><style class="darkreader darkreader--variables" media="screen">:root {
+   --darkreader-neutral-background: var(--darkreader-background-ffffff, #181a1b);
+   --darkreader-neutral-text: var(--darkreader-text-000000, #e8e6e3);
+   --darkreader-selection-background: var(--darkreader-background-0060d4, #0051b2);
+   --darkreader-selection-text: var(--darkreader-text-ffffff, #e8e6e3);
+}</style><style class="darkreader darkreader--root-vars" media="screen"></style>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="./Smart Alarm — Personal Productivity Dashboard_files/client"></script>
+
+    
+    <link rel="icon" type="image/svg+xml" href="http://localhost:5173/alarm-icon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#287a6d">
+    <meta name="description" content="Smart Alarm — Personal Productivity Dashboard. Manage tasks, set alarms, view your Indian calendar, and boost productivity.">
+    <link rel="manifest" href="http://localhost:5173/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Smart Alarm — Personal Productivity Dashboard_files/css2" rel="stylesheet">
+    <title>Smart Alarm — Personal Productivity Dashboard</title>
+  <meta name="darkreader" content="f131b91a2e584c6093a6d5b59236a16f"><style class="darkreader darkreader--override" media="screen">.jfk-bubble.gtx-bubble {
+    background-color: white !important;
+}
+.vimvixen-hint {
+    background-color: var(--darkreader-background-ffd76e, #846000) !important;
+    border-color: var(--darkreader-background-c59d00, #aa8700) !important;
+    color: var(--darkreader-text-302505, #d7d4cf) !important;
+}
+#vimvixen-console-frame {
+    color-scheme: light !important;
+}
+::placeholder {
+    opacity: 0.5 !important;
+}
+#edge-translate-panel-body,
+.MuiTypography-body1,
+.nfe-quote-text {
+    color: var(--darkreader-neutral-text) !important;
+}
+gr-main-header {
+    background-color: var(--darkreader-background-add8e6, #1b4958) !important;
+}
+.tou-z65h9k,
+.tou-mignzq,
+.tou-1b6i2ox,
+.tou-lnqlqk {
+    background-color: var(--darkreader-neutral-background) !important;
+}
+.tou-75mvi {
+    background-color: var(--darkreader-background-cfecf5, #0f3946) !important;
+}
+.tou-ta9e87,
+.tou-1w3fhi0,
+.tou-1b8t2us,
+.tou-py7lfi,
+.tou-1lpmd9d,
+.tou-1frrtv8,
+.tou-17ezmgn {
+    background-color: var(--darkreader-background-f5f5f5, #1e2021) !important;
+}
+.tou-uknfeu {
+    background-color: var(--darkreader-background-faedda, #432b09) !important;
+}
+.tou-6i3zyv {
+    background-color: var(--darkreader-background-85c3d8, #245c6f) !important;
+}
+div.mermaid-viewer-control-panel .btn {
+    background-color: var(--darkreader-neutral-background);
+    fill: var(--darkreader-neutral-text);
+}
+svg g rect.er {
+    fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.entityBox {
+    fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxOdd {
+    fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.er.attributeBoxEven {
+    fill: var(--darkreader-selection-background);
+    fill-opacity: 0.8 !important;
+}
+svg rect.er.relationshipLabelBox {
+    fill: var(--darkreader-neutral-background) !important;
+}
+svg g g.nodes rect,
+svg g g.nodes polygon {
+    fill: var(--darkreader-neutral-background) !important;
+}
+svg g rect.task {
+    fill: var(--darkreader-selection-background) !important;
+}
+svg line.messageLine0,
+svg line.messageLine1 {
+    stroke: var(--darkreader-neutral-text) !important;
+}
+div.mermaid .actor {
+    fill: var(--darkreader-neutral-background) !important;
+}
+mitid-authenticators-code-app > .code-app-container {
+    background-color: white !important;
+    padding-top: 1rem;
+}
+iframe#unpaywall[src$="unpaywall.html"] {
+    color-scheme: light !important;
+}
+select {
+    --darkreader-bg--form-control-background-color: rgba(22, 22, 22, 0) !important;
+}
+body#tumblr {
+    --darkreader-bg--secondary-accent: 31, 32, 34 !important;
+    --darkreader-bg--white: 23, 23, 23 !important;
+    --darkreader-text--black: 228, 224, 218 !important;
+}
+:host {
+    --d2l-border-color: var(--darkreader-bg--d2l-color-gypsum) !important;
+    --d2l-button-icon-background-color-hover: var(--darkreader-bg--d2l-color-gypsum) !important;
+    --d2l-color-ferrite: var(--darkreader-neutral-text) !important;
+    --d2l-color-sylvite: var(--darkreader-bg--d2l-color-sylvite) !important;
+    --d2l-dropdown-background-color: var(--darkreader-neutral-background) !important;
+    --d2l-dropdown-border-color: var(--darkreader-border--d2l-color-mica) !important;
+    --d2l-input-backgroud-color: var(--darkreader-neutral-background) !important;
+    --d2l-menu-border-color: var(--darkreader-bg--d2l-color-gypsum) !important;
+    --d2l-tooltip-background-color: var(--darkreader-neutral-background) !important;
+    --d2l-tooltip-border-color: var(--darkreader-bg--d2l-color-gypsum) !important;
+}
+:host([_floating]) .d2l-floating-buttons-container {
+    background-color: var(--darkreader-neutral-background) !important;
+    border-top-color: var(--darkreader-border--d2l-color-mica) !important;
+    opacity: 0.88 !important;
+}
+d2l-card {
+    background: var(--darkreader-neutral-background) !important;
+    border-color: var(--darkreader-border--d2l-color-gypsum) !important;
+}
+d2l-dropdown-content > div,
+d2l-menu-item {
+    background-color: var(--darkreader-neutral-background) !important;
+    border-radius: 10px !important;
+}
+d2l-empty-state-simple {
+    border-color: var(--darkreader-bg--d2l-color-gypsum) !important;
+}
+.d2l-button-filter > ul > li > a.vui-button {
+    border-color: var(--darkreader-border--d2l-color-mica) !important;
+}
+.d2l-label-text:has(.d2l-button-subtle-content):hover,
+.d2l-label-text:has(.d2l-button-subtle-content):focus,
+.d2l-label-text:has(.d2l-button-subtle-content):active {
+    background-color: var(--darkreader-bg--d2l-color-gypsum) !important;
+}
+.d2l-navigation-centerer {
+    color: inherit !important;
+}
+.d2l-tabs-layout {
+    border-color: var(--darkreader-border--d2l-color-gypsum) !important;
+}
+.d2l-input,
+.d2l-calendar-date,
+.d2l-htmleditor-container {
+    background-color: var(--darkreader-neutral-background) !important;
+}
+.d2l-collapsible-panel {
+    border: 1px solid var(--darkreader-border--d2l-color-mica) !important;
+    border-radius: 0.4rem !important;
+}
+.d2l-collapsible-panel-divider {
+    border-bottom: 1px solid var(--darkreader-border--d2l-color-mica) !important;
+}
+.d2l-w2d-flex {
+    border-bottom: 2px solid var(--darkreader-border--d2l-color-mica) !important;
+}
+.d2l-collapsible-panel scrolled,
+.d2l-collapsible-panel-header,
+.d2l-w2d-collection-fixed {
+    background-color: var(--darkreader-neutral-background) !important;
+}
+.d2l-loading-spinner-bg {
+    fill: var(--darkreader-bg--d2l-color-gypsum) !important;
+}
+.d2l-loading-spinner-bg-stroke {
+    stroke: var(--darkreader-border--d2l-color-mica) !important;
+}
+.d2l-loading-spinner-wrapper svg path,
+.d2l-loading-spinner-wrapper svg circle {
+    fill: var(--darkreader-neutral-background) !important;
+}
+.d2l-twopanelselector-side.d2l-twopanelselector-side-sep {
+    background: var(--darkreader-bg--d2l-color-mica) !important;
+}
+.d2l-le-TreeAccordionItem-anchor::before {
+    background: var(--darkreader-bg--d2l-color-corundum) !important;
+}
+table[class|="moz-header"] {
+    background: none;
+}
+*[style*="color: rgba(0,0,0,"]:not([style*="color: rgba(0,0,0,0)"]),
+*[style*="color: rgba(0, 0, 0,"]:not([style*="color: rgba(0, 0, 0, 0)"]),
+*[style*="color:#000"],
+*[style*="color:black"],
+*[style*="color:#282828"],
+*[style*="color:#444"],
+*[style*="color: #222222"] {
+    color: var(--darkreader-neutral-text) !important;
+}
+*[style*="background:#fff"],
+*[style*="background-color:#fff"],
+*[style*="background: #fff"] {
+    background: var(--darkreader-neutral-background) !important;
+}
+*[bgcolor="#F5F5F5"],
+*[style*="background-color: #F5F5F5"] {
+    background: var(--darkreader-background-f5f5f5, #1e2021) !important;
+}
+*[style*="background: #e6e6e6"] {
+    background: var(--darkreader-background-e6e6e6, #26292b) !important;
+}
+body[style*="background: rgb(255, 255, 255) !important"] *:not(a),
+.body[style*="background-color: rgb(254, 254, 254) !important"] *:not(a) {
+    background-color: var(--darkreader-neutral-background) !important;
+}
+div[style*="www.gstatic.com/android/"] {
+    background: none !important;
+}
+*[style*="background:#f9f9f9"] {
+    background: var(--darkreader-background-f9f9f9, #1b1e1f) !important;
+}
+body.mediawiki.skin-vector #mw-page-base {
+    background-image: none !important;
+}
+.overflow-hidden .spinning-bg,
+.overflow-hidden .solid-bg {
+    background: transparent !important;
+}
+embed[type="application/pdf"][src="about:blank"] { filter: invert(100%) contrast(90%); }</style><style type="text/css" data-vite-dev-id="C:/Users/USER/Smart alarm/src/styles/theme.css">/* ============================================================
+   SMART ALARM — DESIGN SYSTEM (theme.css)
+   CSS Variables for Light / Dark themes + glassmorphism
+   ============================================================ */
+
+/* ── Google Font: Inter ──────────────────────────────────── */
+/* loaded via index.html */
+
+/* ── Light Theme (default) ──────────────────────────────── */
+:root,
+[data-theme="light"] {
+  /* Brand */
+  --color-primary:       #2E8B7D;
+  --color-primary-light: #3EADA0;
+  --color-primary-dark:  #1f6860;
+  --color-primary-rgb:   46, 139, 125;
+
+  /* Accent */
+  --color-accent:        #F59E0B;
+  --color-accent-light:  #FCD34D;
+  --color-danger:        #EF4444;
+  --color-success:       #10B981;
+  --color-warning:       #F59E0B;
+  --color-info:          #3B82F6;
+
+  /* Priority */
+  --color-high:          #EF4444;
+  --color-medium:        #F59E0B;
+  --color-low:           #10B981;
+
+  /* Backgrounds */
+  --bg-app:              #F0F4F8;
+  --bg-surface:          #FFFFFF;
+  --bg-surface-2:        #F7FAFC;
+  --bg-sidebar:          #FFFFFF;
+  --bg-header:           rgba(255,255,255,0.85);
+  --bg-glass:            rgba(255,255,255,0.65);
+  --bg-glass-hover:      rgba(255,255,255,0.85);
+  --bg-overlay:          rgba(0,0,0,0.4);
+  --bg-input:            #F0F4F8;
+
+  /* Text */
+  --text-primary:        #0D1117;
+  --text-secondary:      #4A5568;
+  --text-muted:          #718096;
+  --text-inverse:        #FFFFFF;
+  --text-on-primary:     #FFFFFF;
+
+  /* Border */
+  --border-color:        rgba(0,0,0,0.08);
+  --border-color-strong: rgba(0,0,0,0.15);
+  --border-focus:        rgba(46,139,125,0.5);
+
+  /* Shadow */
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.15);
+  --shadow-glow: 0 0 20px rgba(46,139,125,0.25);
+
+  /* Glassmorphism */
+  --glass-blur:   blur(12px);
+  --glass-border: 1px solid rgba(255,255,255,0.6);
+
+  /* Sidebar */
+  --sidebar-width:         240px;
+  --sidebar-width-mobile:  0px;
+}
+
+/* ── Dark Theme ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Brand (same primary, adjusted shades) */
+  --color-primary:       #3EADA0;
+  --color-primary-light: #56C7B8;
+  --color-primary-dark:  #2E8B7D;
+
+  /* Backgrounds */
+  --bg-app:              #0A0E14;
+  --bg-surface:          #111827;
+  --bg-surface-2:        #1A2234;
+  --bg-sidebar:          #0D1117;
+  --bg-header:           rgba(13,17,23,0.85);
+  --bg-glass:            rgba(255,255,255,0.05);
+  --bg-glass-hover:      rgba(255,255,255,0.09);
+  --bg-overlay:          rgba(0,0,0,0.7);
+  --bg-input:            rgba(255,255,255,0.06);
+
+  /* Text */
+  --text-primary:        #E2E8F0;
+  --text-secondary:      #94A3B8;
+  --text-muted:          #64748B;
+  --text-inverse:        #0D1117;
+
+  /* Border */
+  --border-color:        rgba(255,255,255,0.06);
+  --border-color-strong: rgba(255,255,255,0.12);
+  --border-focus:        rgba(62,173,160,0.5);
+
+  /* Shadow */
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.6);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.7);
+  --shadow-glow: 0 0 30px rgba(62,173,160,0.3);
+
+  /* Glassmorphism */
+  --glass-blur:   blur(16px);
+  --glass-border: 1px solid rgba(255,255,255,0.08);
+}
+</style><style class="darkreader darkreader--sync" media="screen"></style><style type="text/css" data-vite-dev-id="C:/Users/USER/Smart alarm/src/styles/global.css">/* ============================================================
+   SMART ALARM — GLOBAL STYLES (global.css)
+   Reset, base styles, layout, animations, utility classes
+   ============================================================ */
+
+/* ── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4,h5,h6 { font-weight: 700; line-height: 1.25; }
+p { color: var(--text-secondary); }
+a { color: var(--color-primary); text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+ul { list-style: none; }
+
+/* ── App Layout ───────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+
+.app-main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* ── Glass Card ───────────────────────────────────────── */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  background: var(--bg-glass-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Section Card ─────────────────────────────────────── */
+.section-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.section-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Button System ────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.btn:focus-visible { box-shadow: 0 0 0 3px var(--border-focus); }
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+}
+.btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+
+.btn-secondary {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-secondary:hover { background: var(--bg-surface-2); }
+
+.btn-danger { background: var(--color-danger); color: white; }
+.btn-danger:hover { background: #DC2626; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+.btn-ghost:hover { background: var(--bg-input); color: var(--text-primary); }
+
+.btn-icon {
+  padding: 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn-xs { padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; }
+
+/* ── Form Elements ────────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--border-focus);
+}
+.form-input::placeholder { color: var(--text-muted); }
+.form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+/* ── Badge ────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-high   { background: rgba(239,68,68,0.15); color: var(--color-high); }
+.badge-medium { background: rgba(245,158,11,0.15); color: var(--color-medium); }
+.badge-low    { background: rgba(16,185,129,0.15); color: var(--color-low); }
+.badge-primary{ background: rgba(var(--color-primary-rgb),0.15); color: var(--color-primary); }
+
+/* ── Section Headers ──────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.section-title svg { color: var(--color-primary); }
+
+/* ── Stat Cards ───────────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.stat-card-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.stat-card-value { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.stat-card-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+/* ── Progress Bar ─────────────────────────────────────── */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── Modal ────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.25s ease;
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.modal-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+.modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 6px; }
+.modal-close:hover { background: var(--bg-input); color: var(--text-primary); }
+
+/* ── Divider ──────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+
+/* ── Search Bar ───────────────────────────────────────── */
+.search-wrap { position: relative; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+.search-input { padding-left: 38px !important; }
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color-strong); border-radius: 9999px; }
+
+/* ── Animations ───────────────────────────────────────── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+
+.animate-fadeIn { animation: fadeIn 0.3s ease; }
+.animate-slideUp { animation: slideUp 0.3s ease; }
+.animate-slideIn { animation: slideIn 0.3s ease; }
+.animate-bounceIn { animation: bounceIn 0.4s ease; }
+
+/* ── Utility ──────────────────────────────────────────── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); font-size: 0.85rem; }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.w-full { width: 100%; }
+.mt-4 { margin-top: 16px; }
+.mb-4 { margin-bottom: 16px; }
+.p-4 { padding: 16px; }
+.rounded { border-radius: 10px; }
+.overflow-hidden { overflow: hidden; }
+.line-through { text-decoration: line-through; }
+.opacity-60 { opacity: 0.6; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── Empty State ──────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.empty-state svg { opacity: 0.3; }
+.empty-state h3 { color: var(--text-secondary); font-size: 1rem; }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .app-content { margin-left: 0; }
+  .app-main { padding: 16px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .modal-box { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+</style><style class="darkreader darkreader--sync" media="screen"></style></head>
+  <body>
+    <div id="root"><div class="app-layout"><button class="sidebar-hamburger" aria-label="Open menu">☰</button><aside class="sidebar  "><div class="sidebar-logo"><div class="sidebar-logo-icon">⏰</div><div class="sidebar-logo-text"><span class="sidebar-logo-title">Smart Alarm</span><span class="sidebar-logo-sub">Productivity Hub</span></div><button class="sidebar-collapse-btn desktop-only" aria-label="Toggle sidebar">←</button><button class="sidebar-close-btn mobile-only">✕</button></div><nav class="sidebar-nav"><button class="sidebar-nav-item " title=""><span class="nav-icon">⚡</span><span class="nav-label">Dashboard</span></button><button class="sidebar-nav-item active" title=""><span class="nav-icon">✅</span><span class="nav-label">Tasks</span><span class="nav-active-dot"></span></button><button class="sidebar-nav-item " title=""><span class="nav-icon">🔔</span><span class="nav-label">Alarms</span></button><button class="sidebar-nav-item " title=""><span class="nav-icon">🗓️</span><span class="nav-label">Scheduler</span></button><button class="sidebar-nav-item " title=""><span class="nav-icon">📅</span><span class="nav-label">Calendar</span></button><button class="sidebar-nav-item " title=""><span class="nav-icon">📊</span><span class="nav-label">Analytics</span></button></nav><div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-avatar">H</div><div><div class="sidebar-username">Harshitha</div><div class="sidebar-user-role">Premium</div></div></div></div></aside><style>
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100vh;
+          width: var(--sidebar-width);
+          background: var(--bg-sidebar);
+          border-right: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          z-index: 200;
+          transition: width 0.25s ease, transform 0.3s ease;
+          overflow: hidden;
+        }
+        .sidebar.collapsed { width: 68px; }
+        .sidebar-backdrop {
+          display: none;
+          position: fixed; inset: 0;
+          background: var(--bg-overlay);
+          z-index: 199;
+        }
+        .sidebar-hamburger {
+          display: none;
+          position: fixed; top: 16px; left: 16px;
+          background: var(--bg-surface); border: 1px solid var(--border-color);
+          border-radius: 8px; padding: 8px 10px; font-size: 1.1rem;
+          z-index: 198; box-shadow: var(--shadow-sm);
+          cursor: pointer; color: var(--text-primary);
+        }
+        .sidebar-logo {
+          display: flex; align-items: center; gap: 10px;
+          padding: 20px 16px 16px; border-bottom: 1px solid var(--border-color);
+          min-height: 72px;
+        }
+        .sidebar-logo-icon { font-size: 1.8rem; flex-shrink: 0; }
+        .sidebar-logo-text { flex: 1; min-width: 0; }
+        .sidebar-logo-title { display: block; font-size: 0.95rem; font-weight: 800; color: var(--text-primary); }
+        .sidebar-logo-sub { display: block; font-size: 0.7rem; color: var(--color-primary); font-weight: 600; }
+        .sidebar-collapse-btn, .sidebar-close-btn {
+          background: none; border: 1px solid var(--border-color); border-radius: 6px;
+          padding: 4px 8px; color: var(--text-muted); cursor: pointer; flex-shrink: 0; font-size: 0.8rem;
+        }
+        .sidebar-collapse-btn:hover, .sidebar-close-btn:hover { background: var(--bg-input); }
+        .mobile-only { display: none; }
+        .sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+        .sidebar-nav-item {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 12px; border-radius: 10px;
+          background: none; border: none; cursor: pointer;
+          color: var(--text-secondary); font-size: 0.875rem; font-weight: 500;
+          transition: all 0.15s ease; text-align: left; width: 100%;
+          position: relative;
+        }
+        .sidebar-nav-item:hover { background: var(--bg-input); color: var(--text-primary); }
+        .sidebar-nav-item.active {
+          background: rgba(var(--color-primary-rgb), 0.12);
+          color: var(--color-primary); font-weight: 700;
+        }
+        .nav-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .nav-label { flex: 1; }
+        .nav-active-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: var(--color-primary); flex-shrink: 0;
+        }
+        .sidebar-footer {
+          padding: 16px; border-top: 1px solid var(--border-color);
+        }
+        .sidebar-user { display: flex; align-items: center; gap: 10px; }
+        .sidebar-avatar {
+          width: 36px; height: 36px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+          color: white; display: flex; align-items: center; justify-content: center;
+          font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+        }
+        .sidebar-username { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+        .sidebar-user-role { font-size: 0.7rem; color: var(--color-primary); font-weight: 600; }
+        @media (max-width: 768px) {
+          .sidebar { transform: translateX(-100%); width: 260px !important; box-shadow: var(--shadow-xl); }
+          .sidebar.mobile-open { transform: translateX(0); }
+          .sidebar-backdrop { display: block; }
+          .sidebar-hamburger { display: block; }
+          .desktop-only { display: none; }
+          .mobile-only { display: block !important; }
+        }
+      </style><style class="darkreader darkreader--sync" media="screen"></style><div class="app-content"><header class="app-header"><div class="header-left"><div class="header-breadcrumb"><span class="header-section">Tasks</span></div><div class="header-datetime">Thu, 13 Aug · <span class="header-time">12:20 pm</span></div></div><div class="header-right"><button class="btn btn-ghost btn-sm" title="Enable notifications">🔔 Enable Notifications</button><button class="theme-toggle" aria-label="Toggle theme" title="Switch to Light mode"><div class="toggle-track active"><span class="toggle-icon">🌙</span><div class="toggle-thumb"></div></div></button></div><style>
+        .app-header {
+          height: 64px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          background: var(--bg-header);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border-bottom: 1px solid var(--border-color);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          gap: 16px;
+        }
+        .header-left { display: flex; flex-direction: column; gap: 2px; }
+        .header-breadcrumb { display: flex; align-items: center; gap: 6px; }
+        .header-section { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+        .header-datetime { font-size: 0.75rem; color: var(--text-muted); }
+        .header-time { font-weight: 600; color: var(--text-secondary); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .theme-toggle { background: none; border: none; cursor: pointer; padding: 4px; }
+        .toggle-track {
+          width: 52px; height: 28px;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          border-radius: 9999px;
+          position: relative;
+          display: flex; align-items: center;
+          padding: 0 4px;
+          transition: background 0.3s ease;
+        }
+        .toggle-track.active { background: rgba(var(--color-primary-rgb), 0.2); border-color: var(--color-primary); }
+        .toggle-icon { font-size: 0.85rem; position: absolute; left: 6px; transition: opacity 0.2s; }
+        .toggle-thumb {
+          position: absolute;
+          right: 4px;
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          background: var(--color-primary);
+          transition: right 0.3s ease;
+          box-shadow: var(--shadow-sm);
+        }
+        .toggle-track:not(.active) .toggle-thumb { right: 28px; }
+        @media (max-width: 768px) {
+          .app-header { padding: 0 16px 0 60px; }
+          .header-datetime { display: none; }
+        }
+      </style><style class="darkreader darkreader--sync" media="screen"></style></header><main class="app-main"><div class="tasks-page animate-fadeIn"><div class="task-summary-grid"><div class="stat-card" style="border-top: 3px solid var(--color-primary); --darkreader-inline-border-top-short: 3px solid var(--darkreader-border--color-primary);" data-darkreader-inline-border-top-short=""><div class="stat-card-icon" style="background: rgba(var(--color-primary-rgb),0.15); --darkreader-inline-bg: rgba(var(--darkreader-bg--color-primary-rgb, 24, 26, 27),0.15);" data-darkreader-inline-bg=""><span style="font-size: 1.2rem;">📋</span></div><div class="stat-card-value">0</div><div class="stat-card-label">Total Tasks</div></div><div class="stat-card" style="border-top: 3px solid rgb(245, 158, 11); --darkreader-inline-border-top: var(--darkreader-border-f59e0b, #ab6e07);" data-darkreader-inline-border-top=""><div class="stat-card-icon" style="background: rgba(245, 158, 11, 0.15); --darkreader-inline-bgimage: initial; --darkreader-inline-bgcolor: var(--darkreader-background-f59e0b26, rgba(196, 126, 8, 0.15));" data-darkreader-inline-bgimage="" data-darkreader-inline-bgcolor=""><span style="font-size: 1.2rem;">⏳</span></div><div class="stat-card-value">0</div><div class="stat-card-label">Active / Pending</div></div><div class="stat-card" style="border-top: 3px solid rgb(16, 185, 129); --darkreader-inline-border-top: var(--darkreader-border-10b981, #0fb37d);" data-darkreader-inline-border-top=""><div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.15); --darkreader-inline-bgimage: initial; --darkreader-inline-bgcolor: var(--darkreader-background-10b98126, rgba(14, 158, 110, 0.15));" data-darkreader-inline-bgimage="" data-darkreader-inline-bgcolor=""><span style="font-size: 1.2rem;">✅</span></div><div class="stat-card-value">0</div><div class="stat-card-label">Completed</div></div></div><div class="section-card" style="margin-top: 20px;"><div class="section-header"><div class="section-title"><span>✅</span> Task Directory</div><button class="btn btn-primary btn-sm">+ Create New Task</button></div><div class="task-toolbar"><div class="search-wrap" style="flex: 1 1 0%; min-width: 200px;"><span class="search-icon">🔍</span><input class="form-input search-input" placeholder="Search tasks by title or description..." value=""></div><select class="form-select" style="width: auto;"><option value="All">All Priorities</option><option value="High">High Priority</option><option value="Medium">Medium Priority</option><option value="Low">Low Priority</option></select><select class="form-select" style="width: auto;"><option value="All">All Categories</option><option value="Study">Study</option><option value="Work">Work</option><option value="Personal">Personal</option><option value="Health">Health</option><option value="Custom">Custom</option></select><select class="form-select" style="width: auto;"><option value="dueDate">Sort by Due Date</option><option value="priority">Sort by Priority</option><option value="title">Sort by Title</option></select><div class="status-tabs"><button class="status-tab active">All</button><button class="status-tab ">Active</button><button class="status-tab ">Completed</button></div></div><div class="task-list" style="margin-top: 16px;"><div class="empty-state"><span style="font-size: 3rem;">📋</span><h3>No tasks found</h3><p>Add a new task or adjust your search and filters.</p></div></div></div><div class="modal-overlay"><div class="modal-box animate-slideUp"><div class="modal-header"><h3 class="modal-title">➕ Create New Task</h3><button class="modal-close">✕</button></div><form class="task-form"><div class="form-group"><label class="form-label">Task Title *</label><input name="title" class="form-input" placeholder="e.g. Complete React Project Docs" required="" value="Sci chap 2 - bio "></div><div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-input form-textarea" rows="3" placeholder="Add task notes or checklist details..." style="resize: vertical;">font size in front page and detailing 
+all next page or enter into lab at bottom corner 
+story and activity shd be in diffrent page </textarea></div><div class="grid-2"><div class="form-group"><label class="form-label">Category</label><select name="category" class="form-select"><option value="Study">Study</option><option value="Work">Work</option><option value="Personal">Personal</option><option value="Health">Health</option><option value="Custom">Custom</option></select></div><div class="form-group"><label class="form-label">Priority</label><select name="priority" class="form-select"><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div></div><div class="form-group"><label class="form-label">Due Date</label><input name="dueDate" type="date" class="form-input" value="2026-08-14"></div><div class="grid-3"><div class="form-group"><label class="form-label">Start Time</label><input name="startTime" type="time" class="form-input" value="13:00"></div><div class="form-group"><label class="form-label">End Time</label><input name="endTime" type="time" class="form-input" value="10:00"></div><div class="form-group"><label class="form-label">Preferred Time</label><input name="preferredTime" type="time" class="form-input" value=""></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Create Task</button></div></form></div></div><style>
+        .task-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .task-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .status-tabs { display: flex; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
+        .status-tab { padding: 8px 14px; background: none; border: none; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+        .status-tab:hover { background: var(--bg-input); }
+        .status-tab.active { background: var(--color-primary); color: white; font-weight: 600; }
+        .task-list { display: flex; flex-direction: column; gap: 10px; }
+        .task-item {
+          display: flex; align-items: flex-start; gap: 14px;
+          padding: 16px;
+          background: var(--bg-surface-2);
+          border: 1px solid var(--border-color);
+          border-radius: 14px;
+          transition: all 0.2s ease;
+        }
+        .task-item:hover { border-color: var(--color-primary); box-shadow: var(--shadow-sm); }
+        .task-completed { opacity: 0.65; }
+        .task-check {
+          width: 24px; height: 24px; border-radius: 50%;
+          border: 2px solid var(--color-primary);
+          background: none; cursor: pointer; flex-shrink: 0;
+          color: white; font-size: 0.8rem; font-weight: 700;
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s ease; margin-top: 2px;
+        }
+        .task-check.checked { background: var(--color-primary); }
+        .task-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .task-header-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .task-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .task-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .task-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+        .task-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+        .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .task-form { display: flex; flex-direction: column; gap: 16px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+        @media (max-width: 600px) {
+          .task-toolbar { flex-direction: column; align-items: stretch; }
+          .task-actions { flex-direction: column; }
+        }
+      </style><style class="darkreader darkreader--sync" media="screen"></style></div></main></div></div></div>
+    <script type="module" src="./Smart Alarm — Personal Productivity Dashboard_files/main.jsx"></script>
+  
+
+</body></html>
