@@ -48,8 +48,14 @@ export default function LoginModal({ isOpen, onClose }) {
     onClose();
   };
 
+  const [fbSnippet, setFbSnippet] = useState('');
+
   const handleSaveFirebaseConfig = (e) => {
     e.preventDefault();
+    if (fbSnippet.trim()) {
+      saveFirebaseCredentials(fbSnippet.trim());
+      return;
+    }
     if (!fbApiKey || !fbProjectId) return;
     saveFirebaseCredentials({
       apiKey: fbApiKey,
@@ -188,15 +194,22 @@ export default function LoginModal({ isOpen, onClose }) {
           {showFirebaseSetup && (
             <form onSubmit={handleSaveFirebaseConfig} className="firebase-config-form">
               <p className="hint">
-                Enter your Firebase Project credentials to enable live Google Auth & Firestore real-time sync across multiple devices.
+                Paste your Firebase Config object snippet below OR enter API Key and Project ID.
               </p>
+              <textarea 
+                placeholder='Paste Firebase Config snippet here, e.g.:&#10;const firebaseConfig = {&#10;  apiKey: "AIzaSy...",&#10;  projectId: "my-app"&#10;};'
+                value={fbSnippet}
+                onChange={e => setFbSnippet(e.target.value)}
+                className="input-textarea"
+                rows={4}
+              />
+              <div className="auth-divider"><span>OR ENTER KEYS</span></div>
               <input 
                 type="text" 
                 placeholder="Firebase API Key" 
                 value={fbApiKey} 
                 onChange={e => setFbApiKey(e.target.value)} 
                 className="input"
-                required 
               />
               <input 
                 type="text" 
@@ -204,7 +217,6 @@ export default function LoginModal({ isOpen, onClose }) {
                 value={fbProjectId} 
                 onChange={e => setFbProjectId(e.target.value)} 
                 className="input"
-                required 
               />
               <input 
                 type="text" 
@@ -223,11 +235,11 @@ export default function LoginModal({ isOpen, onClose }) {
 
               <div className="form-buttons">
                 <button type="submit" className="btn btn-primary btn-sm">
-                  Save & Reload
+                  Save Credentials & Connect
                 </button>
                 {isFirebaseConfigured && (
                   <button type="button" className="btn btn-danger btn-sm" onClick={clearFirebaseCredentials}>
-                    Reset to Demo Mode
+                    Reset Credentials
                   </button>
                 )}
               </div>
@@ -322,7 +334,8 @@ export default function LoginModal({ isOpen, onClose }) {
         .firebase-setup-footer { border-top: 1px solid var(--border-color); pt-3; text-align: center; }
         .btn-text-link { background: none; border: none; color: var(--color-primary); font-size: 0.8rem; cursor: pointer; font-weight: 600; }
         .firebase-config-form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; text-align: left; }
-        .firebase-config-form input { padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); }
+        .firebase-config-form input, .firebase-config-form textarea { padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); font-family: monospace; }
+        .input-textarea { width: 100%; resize: vertical; }
         .hint { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
         .form-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
       `}</style>
