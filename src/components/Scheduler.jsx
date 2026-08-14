@@ -1,42 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { formatTime12 } from '../utils/timeUtils';
+import { useUserData } from '../context/DataContext';
 
 const CATEGORIES = ['Study', 'Work', 'Personal', 'Health'];
 
-function getInitialSlots() {
-  try { return JSON.parse(localStorage.getItem('sa_slots') || '[]'); } catch { return []; }
-}
-function getInitialTasks() {
-  try { return JSON.parse(localStorage.getItem('sa_tasks') || '[]'); } catch { return []; }
-}
-
 export default function Scheduler() {
-  const [slots, setSlots] = useState(getInitialSlots);
-  const [tasks] = useState(getInitialTasks); // read-only from shared storage
+  const { schedules: slots = [], tasks = [], addSchedule, deleteSchedule } = useUserData();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ label: '', category: 'Study', startTime: '', endTime: '', days: [] });
   const [editId, setEditId] = useState(null);
 
   const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  useEffect(() => { localStorage.setItem('sa_slots', JSON.stringify(slots)); }, [slots]);
-
-  const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.label || !form.startTime || !form.endTime) return;
-    if (editId) {
-      setSlots(prev => prev.map(s => s.id === editId ? { ...form, id: editId } : s));
-      setEditId(null);
-    } else {
-      setSlots(prev => [...prev, { ...form, id: generateId() }]);
-    }
+    await addSchedule(form);
     setForm({ label: '', category: 'Study', startTime: '', endTime: '', days: [] });
     setShowForm(false);
   };
 
-  const deleteSlot = (id) => setSlots(prev => prev.filter(s => s.id !== id));
+  const handleDeleteSlot = (id) => deleteSchedule(id);
   const startEdit = (s) => { setForm({ ...s }); setEditId(s.id); setShowForm(true); };
 
   const toggleDay = (idx) => {

@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SOUND_NAMES, previewSound, playAlarm, stopAlarm, showNotification } from '../utils/notifications';
 import { formatTime12 } from '../utils/timeUtils';
+import { useUserData } from '../context/DataContext';
 
 const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
 const REPEAT_OPTIONS = ['One Time', 'Daily', 'Weekly', 'Custom'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function getInitial() {
-  try { return JSON.parse(localStorage.getItem('sa_alarms') || '[]'); }
-  catch { return []; }
-}
-
 export default function AlarmManager() {
-  const [alarms, setAlarms] = useState(getInitial);
+  const { alarms = [], addAlarm, updateAlarm, deleteAlarm, toggleAlarm } = useUserData();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [activeAlarm, setActiveAlarm] = useState(null); // firing alarm
@@ -25,10 +21,6 @@ export default function AlarmManager() {
     sound: 'Classic Alarm', volume: 0.7, enabled: true, uploadedSrc: null,
   };
   const [form, setForm] = useState(emptyForm);
-
-  useEffect(() => {
-    localStorage.setItem('sa_alarms', JSON.stringify(alarms));
-  }, [alarms]);
 
   // Alarm tick — check every 5s
   useEffect(() => {
@@ -55,21 +47,21 @@ export default function AlarmManager() {
 
         // Disable one-time alarms
         if (alarm.repeat === 'One Time') {
-          setAlarms(prev => prev.map(a => a.id === alarm.id ? { ...a, enabled: false } : a));
+          updateAlarm(alarm.id, { enabled: false });
         }
       });
     }, 5000);
     return () => clearInterval(tickRef.current);
   }, [alarms, snoozed]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.time) return;
     if (editId) {
-      setAlarms(prev => prev.map(a => a.id === editId ? { ...form, id: editId } : a));
+      await updateAlarm(editId, form);
       setEditId(null);
     } else {
-      setAlarms(prev => [...prev, { ...form, id: generateId() }]);
+      await addAlarm(form);
     }
     setForm(emptyForm);
     setShowForm(false);
@@ -81,8 +73,8 @@ export default function AlarmManager() {
     setShowForm(true);
   };
 
-  const deleteAlarm = (id) => setAlarms(prev => prev.filter(a => a.id !== id));
-  const toggleAlarm = (id) => setAlarms(prev => prev.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a));
+  const handleDeleteAlarm = (id) => deleteAlarm(id);
+  const handleToggleAlarm = (id) => toggleAlarm(id);
 
   const handleSnooze = () => {
     if (!activeAlarm) return;

@@ -213,12 +213,45 @@ export function AuthProvider({ children }) {
         return result.user;
       } catch (error) {
         console.error('Google Sign-In Error:', error);
-        setAuthError(error.message || 'Google Sign-In failed.');
-        throw error;
+        let msg = error.message || 'Google Sign-In failed.';
+        if (error.code === 'auth/unauthorized-domain') {
+          msg = 'Domain not authorized. Please add "localhost" to Authorized Domains in Firebase Console > Auth > Settings.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+          msg = 'Google provider is disabled in Firebase. Please enable Google Sign-In under Firebase Console > Auth > Sign-in method.';
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          msg = 'Google Sign-In popup was closed before completion.';
+        } else if (error.code === 'auth/popup-blocked') {
+          msg = 'Google Sign-In popup was blocked by your browser. Please allow popups for this site.';
+        }
+        setAuthError(msg);
+        throw new Error(msg);
       }
     } else {
-      // Demo Mode login helper
-      return currentUser;
+      // Demo Mode Google login helper
+      const name = window.prompt("Google Account Name:", currentUser?.displayName || "Google User");
+      if (!name) return null;
+      const email = window.prompt("Google Email Address:", currentUser?.email || "user@gmail.com");
+      if (!email) return null;
+      
+      const newUid = `google-user-${Date.now()}`;
+      const newUser = {
+        uid: newUid,
+        displayName: name,
+        email: email,
+        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4285F4&color=fff`,
+        role: email.includes('admin') ? 'admin' : 'user',
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        isOnline: true,
+        deviceInfo: 'Google Account Sign-In'
+      };
+
+      const users = getStoredDemoUsers();
+      const nextList = [newUser, ...users];
+      updateDemoUsersList(nextList);
+      switchDemoUser(newUid);
+      return newUser;
     }
   };
 

@@ -11,6 +11,7 @@ import AdminPortal from './components/AdminPortal';
 import LoginModal from './components/LoginModal';
 import LoginPage from './components/LoginPage';
 import { AuthProvider } from './context/AuthContext';
+import { DataProvider } from './context/DataContext';
 
 import './styles/theme.css';
 import './styles/global.css';
@@ -78,7 +79,9 @@ function MainApp() {
 export default function App() {
   return (
     <AuthProvider>
-      <MainApp />
+      <DataProvider>
+        <MainApp />
+      </DataProvider>
     </AuthProvider>
   );
 }

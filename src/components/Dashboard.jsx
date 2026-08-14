@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { showNotification } from '../utils/notifications';
 import { formatTime12, formatDueDateTime } from '../utils/timeUtils';
+import { useUserData } from '../context/DataContext';
 
 const MOTIVATIONAL_QUOTES = [
   "Believe in yourself and all that you are. 🌟",
@@ -13,20 +14,9 @@ const MOTIVATIONAL_QUOTES = [
   "One task at a time, one day at a time. 🕐",
 ];
 
-function getTasks() {
-  try { return JSON.parse(localStorage.getItem('sa_tasks') || '[]'); }
-  catch { return []; }
-}
-
-function getAlarms() {
-  try { return JSON.parse(localStorage.getItem('sa_alarms') || '[]'); }
-  catch { return []; }
-}
-
 export default function Dashboard({ setActiveSection }) {
+  const { tasks = [], alarms = [], toggleTaskCompleted, toggleAlarm } = useUserData();
   const [now, setNow] = useState(new Date());
-  const [tasks, setTasks] = useState(getTasks);
-  const [alarms, setAlarms] = useState(getAlarms);
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
   
   // Smart Intelligence state
@@ -79,18 +69,6 @@ export default function Dashboard({ setActiveSection }) {
 
     return { advice, recommendedSound };
   }, [now, weather, todayTasks]);
-
-  const toggleTaskComplete = (id) => {
-    const updated = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    setTasks(updated);
-    localStorage.setItem('sa_tasks', JSON.stringify(updated));
-  };
-
-  const toggleAlarm = (id) => {
-    const updated = alarms.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a);
-    setAlarms(updated);
-    localStorage.setItem('sa_alarms', JSON.stringify(updated));
-  };
 
   return (
     <div className="dashboard-page animate-fadeIn">
@@ -223,7 +201,7 @@ export default function Dashboard({ setActiveSection }) {
                 <div key={task.id} className="dash-task-item">
                   <button
                     className={`task-check ${task.completed ? 'checked' : ''}`}
-                    onClick={() => toggleTaskComplete(task.id)}
+                    onClick={() => toggleTaskCompleted(task.id)}
                   >
                     {task.completed ? '✓' : ''}
                   </button>

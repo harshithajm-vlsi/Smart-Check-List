@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatTime12 } from '../utils/timeUtils';
+import { useUserData } from '../context/DataContext';
 
 /* ─── Indian Calendar Data ──────────────────────────────────
    Tamil months, Amavasya/Pournami dates, major Indian festivals
@@ -115,12 +116,9 @@ export default function CalendarView() {
   const isPournami = POURNAMI_DATES.has(selected);
   const isEkadashi = EKADASHI_DATES.has(selected);
 
-  const selectedTasks = (() => {
-    try {
-      const all = JSON.parse(localStorage.getItem('sa_tasks') || '[]');
-      return all.filter(t => t.dueDate === selected);
-    } catch { return []; }
-  })();
+  const { tasks = [] } = useUserData();
+
+  const selectedTasks = tasks.filter(t => t.dueDate === selected);
 
   const getMarkers = (iso) => {
     const marks = [];

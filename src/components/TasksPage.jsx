@@ -1,63 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { showNotification, playAlarm } from '../utils/notifications';
 import { formatTime12, formatDueDateTime, formatDateReadable, getMonthDate, getDayOfWeek, getMonthName } from '../utils/timeUtils';
+import { useUserData } from '../context/DataContext';
 
 const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
 const CATEGORIES = ['All', 'Study', 'Work', 'Personal', 'Health', 'Custom'];
 const PRIORITIES = ['High', 'Medium', 'Low'];
 
-function getInitialTasks() {
-  try {
-    const existing = localStorage.getItem('sa_tasks');
-    if (existing) {
-      const parsed = JSON.parse(existing);
-      if (parsed.length > 0) return parsed;
-    }
-  } catch {}
-
-  const today = new Date().toLocaleDateString('en-CA');
-  const nextWeekDate = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
-  const nextWeek = nextWeekDate.toLocaleDateString('en-CA');
-  const nextMonthDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-  const nextMonth = nextMonthDate.toLocaleDateString('en-CA');
-
-  return [
-    {
-      id: '_sample1',
-      title: 'Complete Smart Alarm Dashboard',
-      description: 'Build interactive table view with month date, day, work, start date, due date, due day, due month and task alarms',
-      category: 'Work',
-      priority: 'High',
-      startDate: today,
-      startTime: '09:00',
-      dueDate: nextWeek,
-      dueTime: '17:00',
-      hasAlarm: true,
-      alarmTime: '09:00',
-      completed: false,
-      createdAt: Date.now(),
-    },
-    {
-      id: '_sample2',
-      title: 'Review React Architecture & State',
-      description: 'Optimize local storage task structure and real-time alarm triggers',
-      category: 'Study',
-      priority: 'Medium',
-      startDate: today,
-      startTime: '10:30',
-      dueDate: nextMonth,
-      dueTime: '18:00',
-      hasAlarm: true,
-      alarmTime: '10:30',
-      completed: false,
-      createdAt: Date.now(),
-    }
-  ];
-}
-
 export default function TasksPage() {
-  const [tasks, setTasks] = useState(getInitialTasks);
+  const { tasks = [], addTask, updateTask, deleteTask, toggleTaskCompleted } = useUserData();
   const [search, setSearch] = useState('');
   const [filterPriority, setFilterPriority] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
@@ -82,11 +34,6 @@ export default function TasksPage() {
     alarmTime: '',
   };
   const [form, setForm] = useState(emptyForm);
-
-  // Persist tasks
-  useEffect(() => {
-    localStorage.setItem('sa_tasks', JSON.stringify(tasks));
-  }, [tasks]);
 
   // Task Alarm background trigger (checks every 5 sec)
   useEffect(() => {
@@ -114,7 +61,7 @@ export default function TasksPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) return;
     const finalAlarmTime = form.alarmTime || form.dueTime || form.startTime || '09:00';
@@ -124,10 +71,10 @@ export default function TasksPage() {
     };
 
     if (editId) {
-      setTasks(prev => prev.map(t => t.id === editId ? { ...taskPayload, id: editId, completed: t.completed } : t));
+      await updateTask(editId, taskPayload);
       setEditId(null);
     } else {
-      setTasks(prev => [...prev, { ...taskPayload, id: generateId(), completed: false, createdAt: Date.now() }]);
+      await addTask({ ...taskPayload, completed: false, createdAt: Date.now() });
     }
     setForm(emptyForm);
     setShowForm(false);
@@ -142,19 +89,18 @@ export default function TasksPage() {
     setShowForm(true);
   };
 
-  const deleteTask = (id) => setTasks(prev => prev.filter(t => t.id !== id));
-  const toggleComplete = (id) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const handleDeleteTask = (id) => deleteTask(id);
+  const toggleComplete = (id) => toggleTaskCompleted(id);
 
   const toggleTaskAlarm = (id) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id !== id) return t;
-      const newHasAlarm = !t.hasAlarm;
-      const alarmTime = t.alarmTime || t.dueTime || t.startTime || '09:00';
-      if (newHasAlarm) {
-        showNotification(`🔔 Alarm Enabled: ${t.title}`, `Task alarm scheduled for ${formatTime12(alarmTime)}`);
-      }
-      return { ...t, hasAlarm: newHasAlarm, alarmTime };
-    }));
+    const target = tasks.find(t => t.id === id);
+    if (!target) return;
+    const newHasAlarm = !target.hasAlarm;
+    const alarmTime = target.alarmTime || target.dueTime || target.startTime || '09:00';
+    if (newHasAlarm) {
+      showNotification(`🔔 Alarm Enabled: ${target.title}`, `Task alarm scheduled for ${formatTime12(alarmTime)}`);
+    }
+    updateTask(id, { hasAlarm: newHasAlarm, alarmTime });
   };
 
   // Filtered & sorted tasks

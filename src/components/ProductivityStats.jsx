@@ -1,14 +1,10 @@
 import React, { useMemo } from 'react';
-
-function getTasks() {
-  try { return JSON.parse(localStorage.getItem('sa_tasks') || '[]'); }
-  catch { return []; }
-}
+import { useUserData } from '../context/DataContext';
 
 const WEEKDAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function ProductivityStats() {
-  const tasks = getTasks();
+  const { tasks = [] } = useUserData();
 
   const today = new Date();
   const todayISO = today.toLocaleDateString('en-CA');
