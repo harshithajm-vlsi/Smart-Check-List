@@ -22,7 +22,8 @@ export default function Header({ activeSection, theme, setTheme, onOpenAuthModal
   const SECTION_LABELS = {
     dashboard: 'Dashboard', tasks: 'Tasks', alarms: 'Alarms',
     scheduler: 'Scheduler', calendar: 'Calendar', stats: 'Analytics',
-    admin: 'User Activity & Admin Portal'
+    admin: 'User Activity & Admin Portal',
+    login: 'Login & Account Portal'
   };
 
   return (

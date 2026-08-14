@@ -5,7 +5,10 @@ import {
   googleProvider, 
   isFirebaseConfigured, 
   signInWithPopup, 
-  signOut 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
 } from '../config/firebase';
 import { 
   doc, 
@@ -14,7 +17,6 @@ import {
   updateDoc, 
   onSnapshot, 
   collection, 
-  serverTimestamp, 
   query, 
   orderBy 
 } from 'firebase/firestore';
@@ -107,7 +109,6 @@ export function AuthProvider({ children }) {
           const snap = await getDoc(userRef);
 
           let userRole = 'user';
-          // Check if admin email or existing role
           if (snap.exists()) {
             userRole = snap.data().role || 'user';
           } else if (user.email && (user.email.includes('admin') || user.email.includes('harshitha'))) {
@@ -221,6 +222,119 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Username/Email + Password Login
+  const loginWithEmailPassword = async (emailOrUsername, password) => {
+    setAuthError(null);
+    if (!emailOrUsername || !password) {
+      throw new Error('Please enter username/email and password.');
+    }
+
+    if (isFirebaseConfigured && auth) {
+      try {
+        // Ensure format is email if username passed
+        const email = emailOrUsername.includes('@') ? emailOrUsername : `${emailOrUsername}@smartalarm.app`;
+        const res = await signInWithEmailAndPassword(auth, email, password);
+        return res.user;
+      } catch (err) {
+        console.error('Login error:', err);
+        const msg = err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' 
+          ? 'Invalid username/email or password.' 
+          : err.message;
+        setAuthError(msg);
+        throw new Error(msg);
+      }
+    } else {
+      // Demo mode lookup or creation
+      const users = getStoredDemoUsers();
+      let match = users.find(u => 
+        u.email.toLowerCase() === emailOrUsername.toLowerCase() || 
+        u.displayName.toLowerCase() === emailOrUsername.toLowerCase()
+      );
+
+      if (!match) {
+        // Auto register in demo mode if credentials provided
+        const newUid = `demo-user-${Date.now()}`;
+        const name = emailOrUsername.split('@')[0];
+        match = {
+          uid: newUid,
+          displayName: name,
+          email: emailOrUsername.includes('@') ? emailOrUsername : `${emailOrUsername}@gmail.com`,
+          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`,
+          role: emailOrUsername.includes('admin') ? 'admin' : 'user',
+          createdAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString(),
+          isOnline: true,
+          deviceInfo: 'Web Browser'
+        };
+        const nextList = [match, ...users];
+        updateDemoUsersList(nextList);
+      }
+
+      switchDemoUser(match.uid);
+      return match;
+    }
+  };
+
+  // Register with Username, Email & Password
+  const registerWithEmailPassword = async (username, email, password) => {
+    setAuthError(null);
+    if (!username || !email || !password) {
+      throw new Error('Please complete all registration fields.');
+    }
+
+    if (isFirebaseConfigured && auth) {
+      try {
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        const user = res.user;
+        await updateProfile(user, { displayName: username });
+
+        // Save to Firestore
+        const userRef = doc(db, 'users', user.uid);
+        const userRole = email.includes('admin') || username.toLowerCase().includes('admin') ? 'admin' : 'user';
+        const userData = {
+          uid: user.uid,
+          displayName: username,
+          email: email,
+          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`,
+          role: userRole,
+          createdAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString(),
+          isOnline: true,
+          deviceInfo: 'Desktop Browser'
+        };
+        await setDoc(userRef, userData);
+        return user;
+      } catch (err) {
+        console.error('Register error:', err);
+        const msg = err.code === 'auth/email-already-in-use' ? 'Email address is already registered.' : err.message;
+        setAuthError(msg);
+        throw new Error(msg);
+      }
+    } else {
+      const users = getStoredDemoUsers();
+      const newUid = `demo-user-${Date.now()}`;
+      const newUser = {
+        uid: newUid,
+        displayName: username,
+        email: email,
+        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`,
+        role: email.includes('admin') || username.toLowerCase().includes('admin') ? 'admin' : 'user',
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        isOnline: true,
+        deviceInfo: 'Web Browser'
+      };
+
+      const nextList = [newUser, ...users];
+      updateDemoUsersList(nextList);
+      switchDemoUser(newUid);
+      return newUser;
+    }
+  };
+
   // Demo Switch Account helper (for quick multi-user testing)
   const switchDemoUser = (userId) => {
     const users = getStoredDemoUsers();
@@ -289,7 +403,6 @@ export function AuthProvider({ children }) {
       });
       updateDemoUsersList(nextList);
 
-      // If current user modified their own role
       if (currentUser.uid === targetUid) {
         const updatedSelf = nextList.find(u => u.uid === targetUid);
         setCurrentUser({ ...updatedSelf, isAdmin: updatedSelf.role === 'admin' });
@@ -315,7 +428,6 @@ export function AuthProvider({ children }) {
         const nextList = users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u);
         updateDemoUsersList(nextList);
       }
-      // Switch to default user or sign out
       setCurrentUser(null);
     }
   };
@@ -328,6 +440,8 @@ export function AuthProvider({ children }) {
     isFirebaseConfigured,
     isAdmin: currentUser?.role === 'admin' || currentUser?.isAdmin,
     loginWithGoogle,
+    loginWithEmailPassword,
+    registerWithEmailPassword,
     logoutUser,
     switchDemoUser,
     addSimulatedGoogleUser,

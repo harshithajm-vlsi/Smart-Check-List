@@ -9,6 +9,7 @@ import CalendarView from './components/CalendarView';
 import ProductivityStats from './components/ProductivityStats';
 import AdminPortal from './components/AdminPortal';
 import LoginModal from './components/LoginModal';
+import LoginPage from './components/LoginPage';
 import { AuthProvider } from './context/AuthContext';
 
 import './styles/theme.css';
@@ -40,6 +41,8 @@ function MainApp() {
         return <ProductivityStats />;
       case 'admin':
         return <AdminPortal />;
+      case 'login':
+        return <LoginPage onLoginSuccess={() => setActiveSection('dashboard')} />;
       default:
         return <Dashboard setActiveSection={setActiveSection} />;
     }

@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { id: 'scheduler',   label: 'Scheduler',    icon: '🗓️' },
   { id: 'calendar',    label: 'Calendar',     icon: '📅' },
   { id: 'stats',       label: 'Analytics',    icon: '📊' },
+  { id: 'login',       label: 'Login / Account', icon: '🔑' },
 ];
 
 export default function Sidebar({ activeSection, setActiveSection, onOpenAuthModal }) {

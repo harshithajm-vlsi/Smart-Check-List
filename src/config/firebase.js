@@ -1,5 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // Default / standard Firebase config keys check
@@ -50,7 +58,18 @@ if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_A
   }
 }
 
-export { app, auth, db, googleProvider, isFirebaseConfigured, signInWithPopup, signOut };
+export { 
+  app, 
+  auth, 
+  db, 
+  googleProvider, 
+  isFirebaseConfigured, 
+  signInWithPopup, 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
+};
 
 export const saveFirebaseCredentials = (config) => {
   localStorage.setItem('sa_firebase_config', JSON.stringify(config));
