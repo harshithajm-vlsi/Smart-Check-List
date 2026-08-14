@@ -7,6 +7,8 @@ export default function LoginPage({ onLoginSuccess }) {
     loginWithGoogle, 
     loginWithEmailPassword, 
     registerWithEmailPassword, 
+    updateUserProfile,
+    grantSelfAdmin,
     logoutUser,
     switchDemoUser,
     allUsers,
@@ -25,6 +27,12 @@ export default function LoginPage({ onLoginSuccess }) {
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
+
+  // WhatsApp Profile Editing State
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [editingBio, setEditingBio] = useState(false);
+  const [newBio, setNewBio] = useState('');
 
   // UI state
   const [showPassword, setShowPassword] = useState(false);
@@ -93,6 +101,27 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   };
 
+  // Save WhatsApp Username Rename
+  const handleSaveName = async () => {
+    if (!newName.trim()) return;
+    await updateUserProfile({ displayName: newName.trim() });
+    setEditingName(false);
+  };
+
+  // Save WhatsApp Bio Status
+  const handleSaveBio = async () => {
+    await updateUserProfile({ bio: newBio.trim() });
+    setEditingBio(false);
+  };
+
+  // Edit Avatar Photo prompt
+  const handleChangePhoto = async () => {
+    const url = window.prompt("Enter new Profile Image URL or avatar link:", currentUser?.photoURL);
+    if (url && url.trim()) {
+      await updateUserProfile({ photoURL: url.trim() });
+    }
+  };
+
   return (
     <div className="login-page-container">
       <div className="login-glow-bg" />
@@ -105,35 +134,149 @@ export default function LoginPage({ onLoginSuccess }) {
           <p className="brand-tagline">Multi-User Productivity & Task Management Hub</p>
         </div>
 
-        {/* If user is already signed in */}
+        {/* If user is signed in -> WhatsApp Style Account Profile Page */}
         {currentUser ? (
-          <div className="signed-in-box">
-            <div className="user-profile-large">
+          <div className="whatsapp-profile-card">
+            <div className="profile-header-banner">
+              <h2>Account Settings</h2>
+              <span className="online-tag">🟢 Connected</span>
+            </div>
+
+            {/* WhatsApp Avatar Circle */}
+            <div className="whatsapp-avatar-wrapper">
               <img 
                 src={currentUser.photoURL} 
                 alt={currentUser.displayName} 
-                className="user-profile-img"
+                className="whatsapp-avatar-img"
                 onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName)}&background=6366f1&color=fff`; }}
               />
-              <div className="user-profile-info">
-                <h3>{currentUser.displayName}</h3>
-                <span className="user-email-badge">{currentUser.email}</span>
-                <span className="user-role-tag">
-                  {currentUser.isAdmin ? '👑 Administrator' : '👤 Registered User'}
-                </span>
+              <button 
+                className="avatar-edit-badge" 
+                onClick={handleChangePhoto}
+                title="Change profile picture"
+              >
+                📷
+              </button>
+            </div>
+
+            {/* WhatsApp Profile Items List */}
+            <div className="profile-items-list">
+              {/* Name Item */}
+              <div className="profile-item">
+                <div className="item-icon">👤</div>
+                <div className="item-content">
+                  <span className="item-label">Your Name</span>
+                  {editingName ? (
+                    <div className="item-edit-row">
+                      <input 
+                        type="text" 
+                        value={newName} 
+                        onChange={e => setNewName(e.target.value)} 
+                        className="inline-edit-input"
+                        autoFocus
+                      />
+                      <button className="btn-icon-save" onClick={handleSaveName}>✓</button>
+                      <button className="btn-icon-cancel" onClick={() => setEditingName(false)}>✕</button>
+                    </div>
+                  ) : (
+                    <div className="item-val-row">
+                      <span className="item-value">{currentUser.displayName}</span>
+                      <button 
+                        className="btn-pencil" 
+                        onClick={() => { setNewName(currentUser.displayName); setEditingName(true); }}
+                        title="Edit Username"
+                      >
+                        ✏️ Edit
+                      </button>
+                    </div>
+                  )}
+                  <p className="item-hint">
+                    This is not your pin or password. This name will be visible to your contacts and on tasks.
+                  </p>
+                </div>
+              </div>
+
+              {/* About / Status Item */}
+              <div className="profile-item">
+                <div className="item-icon">ℹ️</div>
+                <div className="item-content">
+                  <span className="item-label">About / Status</span>
+                  {editingBio ? (
+                    <div className="item-edit-row">
+                      <input 
+                        type="text" 
+                        value={newBio} 
+                        onChange={e => setNewBio(e.target.value)} 
+                        className="inline-edit-input"
+                        placeholder="e.g. Available, Focusing on study..."
+                        autoFocus
+                      />
+                      <button className="btn-icon-save" onClick={handleSaveBio}>✓</button>
+                      <button className="btn-icon-cancel" onClick={() => setEditingBio(false)}>✕</button>
+                    </div>
+                  ) : (
+                    <div className="item-val-row">
+                      <span className="item-value">{currentUser.bio || 'Available 🚀'}</span>
+                      <button 
+                        className="btn-pencil" 
+                        onClick={() => { setNewBio(currentUser.bio || 'Available 🚀'); setEditingBio(true); }}
+                        title="Edit Status"
+                      >
+                        ✏️ Edit
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Email Address Item */}
+              <div className="profile-item">
+                <div className="item-icon">✉️</div>
+                <div className="item-content">
+                  <span className="item-label">Google Account Email</span>
+                  <div className="item-val-row">
+                    <span className="item-value">{currentUser.email}</span>
+                    <span className="verified-chip">✓ Verified</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Role & Admin Portal Link */}
+              <div className="profile-item highlight">
+                <div className="item-icon">👑</div>
+                <div className="item-content">
+                  <span className="item-label">Account Role</span>
+                  <div className="item-val-row">
+                    <span className="item-value font-bold">
+                      {currentUser.isAdmin ? '👑 Administrator' : '👤 Standard User'}
+                    </span>
+                    {!currentUser.isAdmin && (
+                      <button className="btn btn-warning btn-xs" onClick={grantSelfAdmin}>
+                        Unlock Admin Role
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
+            {/* Profile Action Buttons */}
             <div className="signed-in-actions">
+              {currentUser.isAdmin && (
+                <button className="btn btn-warning full-width" onClick={() => window.location.hash = '#admin'}>
+                  👑 Open Admin User Activity Portal
+                </button>
+              )}
               <button className="btn btn-primary full-width" onClick={onLoginSuccess}>
-                🚀 Go to Dashboard
+                🚀 Go to Personal Dashboard
               </button>
               <button className="btn btn-outline full-width" onClick={logoutUser}>
-                🚪 Sign Out
+                🚪 Sign Out Account
               </button>
             </div>
           </div>
         ) : (
+          /* Sign In / Create Account Card */
           <div className="auth-card">
             {/* Mode Switcher Tabs */}
             <div className="auth-tabs">
@@ -351,7 +494,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
         .login-card-wrapper {
           position: relative; z-index: 1;
-          width: 100%; max-width: 440px;
+          width: 100%; max-width: 460px;
           display: flex; flex-direction: column; gap: 24px;
         }
 
@@ -367,13 +510,78 @@ export default function LoginPage({ onLoginSuccess }) {
         .brand-title { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
         .brand-tagline { font-size: 0.88rem; color: var(--text-secondary); }
 
-        .auth-card {
+        .auth-card, .whatsapp-profile-card {
           background: var(--bg-surface);
           border: 1px solid var(--border-color);
           border-radius: 20px; padding: 28px;
           box-shadow: var(--shadow-xl);
           display: flex; flex-direction: column; gap: 20px;
         }
+
+        .profile-header-banner {
+          display: flex; justify-content: space-between; align-items: center;
+          border-bottom: 1px solid var(--border-color); pb-3;
+        }
+        .profile-header-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); }
+        .online-tag { font-size: 0.78rem; color: #10b981; font-weight: 700; }
+
+        /* WhatsApp Avatar Styling */
+        .whatsapp-avatar-wrapper {
+          position: relative; width: 100px; height: 100px;
+          margin: 0 auto;
+        }
+        .whatsapp-avatar-img {
+          width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+          box-shadow: var(--shadow-md); border: 3px solid var(--color-primary);
+        }
+        .avatar-edit-badge {
+          position: absolute; bottom: 0; right: 0;
+          width: 32px; height: 32px; border-radius: 50%;
+          background: var(--color-primary); color: white; border: 2px solid var(--bg-surface);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.9rem; cursor: pointer; transition: transform 0.2s;
+        }
+        .avatar-edit-badge:hover { transform: scale(1.1); }
+
+        /* WhatsApp Profile Items */
+        .profile-items-list { display: flex; flex-direction: column; gap: 16px; }
+        .profile-item {
+          display: flex; gap: 14px; padding: 12px;
+          background: var(--bg-input); border: 1px solid var(--border-color);
+          border-radius: 12px; transition: border-color 0.2s;
+        }
+        .profile-item.highlight { background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.25); }
+        .item-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+        .item-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .item-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .item-val-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .item-value { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); word-break: break-word; }
+        .btn-pencil {
+          background: none; border: none; color: var(--color-primary);
+          font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 2px 6px;
+          border-radius: 6px; transition: background 0.15s;
+        }
+        .btn-pencil:hover { background: rgba(var(--color-primary-rgb), 0.15); }
+
+        .item-edit-row { display: flex; align-items: center; gap: 6px; }
+        .inline-edit-input {
+          flex: 1; padding: 6px 10px; font-size: 0.9rem; font-weight: 700;
+          border-radius: 6px; border: 1px solid var(--color-primary);
+          background: var(--bg-surface); color: var(--text-primary);
+        }
+        .btn-icon-save {
+          background: #10b981; color: white; border: none; border-radius: 6px;
+          width: 28px; height: 28px; font-weight: 800; cursor: pointer;
+        }
+        .btn-icon-cancel {
+          background: var(--text-muted); color: white; border: none; border-radius: 6px;
+          width: 28px; height: 28px; font-weight: 800; cursor: pointer;
+        }
+
+        .item-hint { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; margin-top: 2px; }
+        .verified-chip { font-size: 0.72rem; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.12); padding: 2px 8px; border-radius: 10px; }
+
+        .signed-in-actions { display: flex; flex-direction: column; gap: 10px; }
 
         .auth-tabs {
           display: flex; background: var(--bg-input);
@@ -453,18 +661,6 @@ export default function LoginPage({ onLoginSuccess }) {
           padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; margin-top: 4px;
         }
 
-        .signed-in-box {
-          background: var(--bg-surface); border: 1px solid var(--border-color);
-          border-radius: 20px; padding: 32px; text-align: center;
-          box-shadow: var(--shadow-xl); display: flex; flex-direction: column; gap: 24px;
-        }
-        .user-profile-large { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .user-profile-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-md); }
-        .user-profile-info h3 { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
-        .user-email-badge { font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px; }
-        .user-role-tag { font-size: 0.78rem; font-weight: 700; background: rgba(99, 102, 241, 0.12); color: var(--color-primary); padding: 4px 12px; border-radius: 20px; }
-        .signed-in-actions { display: flex; flex-direction: column; gap: 10px; }
-
         .quick-switch-section {
           border-top: 1px solid var(--border-color); pt-3; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;
         }
@@ -479,6 +675,8 @@ export default function LoginPage({ onLoginSuccess }) {
         .user-chip-btn:hover { border-color: var(--color-primary); background: var(--bg-surface); }
         .chip-img { width: 18px; height: 18px; border-radius: 50%; }
         .admin-star { font-size: 0.75rem; }
+        .btn-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700; }
+        .btn-warning:hover { background: rgba(245, 158, 11, 0.25); }
       `}</style>
     </div>
   );

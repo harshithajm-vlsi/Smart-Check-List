@@ -409,6 +409,36 @@ export function AuthProvider({ children }) {
     switchDemoUser(newUser.uid);
   };
 
+  // Profile Update (Rename display name, photo, bio)
+  const updateUserProfile = async ({ displayName, photoURL, bio }) => {
+    if (!currentUser) return;
+    const updatedUser = {
+      ...currentUser,
+      ...(displayName !== undefined && { displayName }),
+      ...(photoURL !== undefined && { photoURL }),
+      ...(bio !== undefined && { bio }),
+    };
+
+    setCurrentUser(updatedUser);
+
+    if (isFirebaseConfigured && db && auth?.currentUser) {
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          ...(displayName !== undefined && { displayName }),
+          ...(photoURL !== undefined && { photoURL }),
+          ...(bio !== undefined && { bio }),
+        });
+      } catch (e) {
+        console.warn('Failed to update profile in Firestore:', e);
+      }
+    } else {
+      const users = getStoredDemoUsers();
+      const nextList = users.map(u => u.uid === currentUser.uid ? updatedUser : u);
+      updateDemoUsersList(nextList);
+    }
+  };
+
   // Toggle user admin role (For Admin Page)
   const toggleUserRole = async (targetUid) => {
     if (!currentUser?.isAdmin) return;
@@ -440,6 +470,18 @@ export function AuthProvider({ children }) {
         const updatedSelf = nextList.find(u => u.uid === targetUid);
         setCurrentUser({ ...updatedSelf, isAdmin: updatedSelf.role === 'admin' });
       }
+    }
+  };
+
+  // Grant current user admin role
+  const grantSelfAdmin = () => {
+    if (!currentUser) return;
+    const updated = { ...currentUser, role: 'admin', isAdmin: true };
+    setCurrentUser(updated);
+    if (!isFirebaseConfigured) {
+      const users = getStoredDemoUsers();
+      const nextList = users.map(u => u.uid === currentUser.uid ? updated : u);
+      updateDemoUsersList(nextList);
     }
   };
 
@@ -475,6 +517,8 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     loginWithEmailPassword,
     registerWithEmailPassword,
+    updateUserProfile,
+    grantSelfAdmin,
     logoutUser,
     switchDemoUser,
     addSimulatedGoogleUser,

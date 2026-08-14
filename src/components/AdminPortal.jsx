@@ -7,6 +7,7 @@ export default function AdminPortal() {
     currentUser, 
     allUsers, 
     isAdmin, 
+    grantSelfAdmin,
     toggleUserRole, 
     isFirebaseConfigured,
     switchDemoUser,
@@ -26,10 +27,19 @@ export default function AdminPortal() {
         <div className="denied-card">
           <div className="denied-icon">🔒</div>
           <h2>Admin Access Required</h2>
-          <p>You need Administrator privileges to access the User Activity page.</p>
+          <p>Sign in with an Administrator account or grant admin privileges to access the User Activity page.</p>
           <div className="denied-hint">
             Current account: <strong>{currentUser?.email || 'Not logged in'}</strong>
           </div>
+          {currentUser && (
+            <button 
+              className="btn btn-warning full-width" 
+              style={{ marginTop: 16 }}
+              onClick={grantSelfAdmin}
+            >
+              👑 Grant Admin Role to {currentUser.displayName || currentUser.email}
+            </button>
+          )}
         </div>
 
         <style>{`
