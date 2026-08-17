@@ -28,6 +28,10 @@ export default function LoginPage({ onLoginSuccess }) {
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [regPhotoBase64, setRegPhotoBase64] = useState('');
 
+  // Account Settings / Profile State
+  const [activeTab, setActiveTab] = useState('profile');
+  const [settingsSearch, setSettingsSearch] = useState('');
+
   // Editable Profile fields
   const [nameInput, setNameInput] = useState('');
   const [bioInput, setBioInput] = useState('');
