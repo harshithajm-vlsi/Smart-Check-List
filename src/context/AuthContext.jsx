@@ -28,10 +28,12 @@ const AuthContext = createContext();
 const INITIAL_DEMO_USERS = [
   {
     uid: 'demo-admin-1',
-    displayName: 'Harshitha (Owner)',
+    displayName: 'Harshu~~💜',
     email: 'harshitha@admin.smartalarm.com',
     photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     role: 'admin',
+    gender: 'Female',
+    bio: 'Coding through the night ☕ | Living life one task at a time 💜',
     createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     lastLoginAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
@@ -44,6 +46,8 @@ const INITIAL_DEMO_USERS = [
     email: 'alex.rivers@gmail.com',
     photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
     role: 'user',
+    gender: 'Male',
+    bio: 'Stay hungry, stay foolish 🚀',
     createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
     lastLoginAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
     lastActiveAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
@@ -56,6 +60,8 @@ const INITIAL_DEMO_USERS = [
     email: 'sarah.chen@tech.org',
     photoURL: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
     role: 'user',
+    gender: 'Female',
+    bio: 'Focus on progress, not perfection ✨',
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     lastLoginAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
     lastActiveAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
@@ -68,6 +74,8 @@ const INITIAL_DEMO_USERS = [
     email: 'dmiller99@yahoo.com',
     photoURL: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
     role: 'user',
+    gender: 'Male',
+    bio: 'Building awesome apps 📱',
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     lastLoginAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
     lastActiveAt: new Date(Date.now() - 11 * 3600 * 1000).toISOString(),
@@ -409,14 +417,15 @@ export function AuthProvider({ children }) {
     switchDemoUser(newUser.uid);
   };
 
-  // Profile Update (Rename display name, photo, bio)
-  const updateUserProfile = async ({ displayName, photoURL, bio }) => {
+  // Profile Update (Rename display name, photo, bio, gender)
+  const updateUserProfile = async ({ displayName, photoURL, bio, gender }) => {
     if (!currentUser) return;
     const updatedUser = {
       ...currentUser,
       ...(displayName !== undefined && { displayName }),
       ...(photoURL !== undefined && { photoURL }),
       ...(bio !== undefined && { bio }),
+      ...(gender !== undefined && { gender }),
     };
 
     setCurrentUser(updatedUser);
@@ -428,6 +437,7 @@ export function AuthProvider({ children }) {
           ...(displayName !== undefined && { displayName }),
           ...(photoURL !== undefined && { photoURL }),
           ...(bio !== undefined && { bio }),
+          ...(gender !== undefined && { gender }),
         });
       } catch (e) {
         console.warn('Failed to update profile in Firestore:', e);

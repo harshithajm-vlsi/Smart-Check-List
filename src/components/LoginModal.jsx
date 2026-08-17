@@ -100,6 +100,11 @@ export default function LoginModal({ isOpen, onClose }) {
                   {currentUser.isAdmin && <span className="badge-admin">👑 Admin</span>}
                 </div>
                 <div className="user-email">{currentUser.email}</div>
+                {currentUser.bio && (
+                  <div style={{ fontStyle: 'italic', fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
+                    💬 "{currentUser.bio}"
+                  </div>
+                )}
                 <div className="user-status-text">
                   <span className="status-dot online" /> Connected with Google
                 </div>

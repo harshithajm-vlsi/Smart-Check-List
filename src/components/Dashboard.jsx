@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { showNotification } from '../utils/notifications';
 import { formatTime12, formatDueDateTime } from '../utils/timeUtils';
 import { useUserData } from '../context/DataContext';
+import { useAuth } from '../context/AuthContext';
+import { getUserLocationAndWeather } from '../utils/weatherUtils';
 
 const MOTIVATIONAL_QUOTES = [
   "Believe in yourself and all that you are. 🌟",
@@ -15,12 +17,36 @@ const MOTIVATIONAL_QUOTES = [
 ];
 
 export default function Dashboard({ setActiveSection }) {
+  const { currentUser } = useAuth();
   const { tasks = [], alarms = [], toggleTaskCompleted, toggleAlarm } = useUserData();
+  const userName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'User';
   const [now, setNow] = useState(new Date());
   const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
   
-  // Smart Intelligence state
+  // Smart Intelligence state & Weather location
   const [weather, setWeather] = useState('Sunny'); // Sunny, Rainy, Cold, Busy
+  const [locationData, setLocationData] = useState(null); // { city, temp, category, conditionDesc, icon }
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  // Auto-detect user location & live weather
+  const detectWeatherLocation = async () => {
+    setLoadingLocation(true);
+    try {
+      const data = await getUserLocationAndWeather();
+      if (data) {
+        setLocationData(data);
+        setWeather(data.category);
+      }
+    } catch (e) {
+      console.warn('Weather detection notice:', e);
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+
+  useEffect(() => {
+    detectWeatherLocation();
+  }, []);
 
   // Live clock
   useEffect(() => {
@@ -42,15 +68,17 @@ export default function Dashboard({ setActiveSection }) {
 
     let advice = [];
     let recommendedSound = 'Classic Alarm';
+    const locPrefix = locationData?.city ? ` in ${locationData.city}` : '';
+    const tempStr = locationData?.temp !== null && locationData?.temp !== undefined ? ` (${locationData.temp}°C)` : '';
 
     if (weather === 'Rainy') {
-      advice.push('🌧️ Rainy day detected: Ideal for indoor study, coding, and reading tasks.');
+      advice.push(`🌧️ Rainy weather detected${locPrefix}${tempStr}: Ideal for indoor study, coding, and reading tasks.`);
       recommendedSound = 'Rain Sound / Soft Bell';
     } else if (weather === 'Sunny') {
-      advice.push('☀️ Great sunny weather! Excellent window for exercise and outdoor tasks.');
+      advice.push(`☀️ Great sunny weather${locPrefix}${tempStr}! Excellent window for exercise and outdoor tasks.`);
       recommendedSound = 'Focus Alert';
     } else if (weather === 'Cold') {
-      advice.push('❄️ Chilly weather: Enjoy warm focus sessions with steady time slots.');
+      advice.push(`❄️ Chilly weather${locPrefix}${tempStr}: Enjoy warm focus sessions with steady time slots.`);
       recommendedSound = 'Temple Bell';
     } else if (weather === 'Busy') {
       advice.push('📅 High schedule density today: 15-minute advance notifications recommended.');
@@ -68,7 +96,7 @@ export default function Dashboard({ setActiveSection }) {
     }
 
     return { advice, recommendedSound };
-  }, [now, weather, todayTasks]);
+  }, [now, weather, todayTasks, locationData]);
 
   return (
     <div className="dashboard-page animate-fadeIn">
@@ -76,8 +104,34 @@ export default function Dashboard({ setActiveSection }) {
       <div className="welcome-banner glass-card">
         <div className="welcome-main">
           <div className="welcome-greeting">
-            <h2>Hi Harshitha 👋</h2>
-            <p>Ready to conquer today?</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <h2>Hi {userName} 👋</h2>
+              {currentUser?.gender && (
+                <span 
+                  style={{
+                    fontSize: '0.75rem',
+                    padding: '3px 10px',
+                    borderRadius: '14px',
+                    background: 'rgba(99, 102, 241, 0.15)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    color: 'var(--color-primary)',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  {currentUser.gender === 'Female' ? '♀️ Female' : currentUser.gender === 'Male' ? '♂️ Male' : currentUser.gender === 'Non-binary' ? '🌈 Non-binary' : `👤 ${currentUser.gender}`}
+                </span>
+              )}
+            </div>
+            {currentUser?.bio ? (
+              <p className="welcome-bio-quote" style={{ fontStyle: 'italic', color: 'var(--text-secondary)', margin: '6px 0 2px', fontSize: '0.94rem' }}>
+                💬 "{currentUser.bio}"
+              </p>
+            ) : (
+              <p style={{ margin: '4px 0 2px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Ready to conquer today?</p>
+            )}
           </div>
           <div className="welcome-datetime">
             <div className="welcome-date">
@@ -141,21 +195,75 @@ export default function Dashboard({ setActiveSection }) {
 
       {/* Smart Intelligence Widget */}
       <div className="section-card" style={{ marginTop: 20 }}>
-        <div className="section-header">
+        <div className="section-header" style={{ flexWrap: 'wrap', gap: '12px' }}>
           <div className="section-title">
             <span>🧠</span> Smart Alarm & Schedule Intelligence
           </div>
-          <div className="weather-selector">
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Weather:</span>
-            {['Sunny', 'Rainy', 'Cold', 'Busy'].map(w => (
-              <button
-                key={w}
-                className={`weather-btn ${weather === w ? 'active' : ''}`}
-                onClick={() => setWeather(w)}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            {/* Live Location Weather Badge */}
+            {locationData ? (
+              <div 
+                className="weather-location-badge"
+                title="Live weather auto-detected for your location"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  background: 'rgba(99, 102, 241, 0.15)',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  color: 'var(--text-main)'
+                }}
               >
-                {w === 'Sunny' ? '☀️ Sunny' : w === 'Rainy' ? '🌧️ Rainy' : w === 'Cold' ? '❄️ Cold' : '📅 Busy'}
+                <span>📍 {locationData.city}</span>
+                <span style={{ opacity: 0.5 }}>•</span>
+                <span>{locationData.icon} {locationData.temp !== null ? `${locationData.temp}°C` : ''} ({locationData.conditionDesc})</span>
+                <button 
+                  onClick={detectWeatherLocation} 
+                  disabled={loadingLocation}
+                  title="Refresh location & weather"
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer', 
+                    padding: '0 2px', 
+                    fontSize: '0.85rem',
+                    opacity: loadingLocation ? 0.5 : 0.9 
+                  }}
+                >
+                  🔄
+                </button>
+              </div>
+            ) : loadingLocation ? (
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                📍 Detecting location...
+              </span>
+            ) : (
+              <button 
+                className="btn btn-ghost btn-xs"
+                onClick={detectWeatherLocation}
+                style={{ fontSize: '0.78rem' }}
+              >
+                📍 Detect My Location
               </button>
-            ))}
+            )}
+
+            <div className="weather-selector">
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Weather:</span>
+              {['Sunny', 'Rainy', 'Cold', 'Busy'].map(w => (
+                <button
+                  key={w}
+                  className={`weather-btn ${weather === w ? 'active' : ''}`}
+                  onClick={() => setWeather(w)}
+                >
+                  {w === 'Sunny' ? '☀️ Sunny' : w === 'Rainy' ? '🌧️ Rainy' : w === 'Cold' ? '❄️ Cold' : '📅 Busy'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
