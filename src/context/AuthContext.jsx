@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
       const saved = localStorage.getItem('sa_remembered_accounts_v1');
       if (saved) return JSON.parse(saved);
     } catch (e) {}
-    return [INITIAL_DEMO_USERS[0]];
+    return [];
   });
 
   const saveRememberedAccount = (userObj) => {
@@ -192,14 +192,7 @@ export function AuthProvider({ children }) {
       const demoUsers = getStoredDemoUsers();
       updateDemoUsersList(demoUsers);
 
-      // Require user to sign in or select saved account first on link click
-      const activeUserId = localStorage.getItem('sa_active_user_id');
-      if (activeUserId) {
-        const foundUser = demoUsers.find(u => u.uid === activeUserId);
-        if (foundUser) {
-          saveRememberedAccount(foundUser);
-        }
-      }
+      // Require user to sign in or register first on initial visit
       setCurrentUser(null);
       setLoading(false);
     }
