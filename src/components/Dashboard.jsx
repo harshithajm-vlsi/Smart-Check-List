@@ -5,6 +5,8 @@ import { useUserData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { getUserLocationAndWeather } from '../utils/weatherUtils';
 
+import TamilDashboardWidget from './TamilDashboardWidget';
+
 const MOTIVATIONAL_QUOTES = [
   "Believe in yourself and all that you are. 🌟",
   "Small steps every day lead to big results. 🚀",
@@ -171,6 +173,9 @@ export default function Dashboard({ setActiveSection }) {
           </div>
         )}
       </div>
+
+      {/* Tamil Calendar & Panchangam Dashboard Widget */}
+      <TamilDashboardWidget onOpenFullCalendar={() => setActiveSection('tamil-calendar')} />
 
       {/* Quick Overview Grid */}
       <div className="stat-grid" style={{ marginTop: 20 }}>

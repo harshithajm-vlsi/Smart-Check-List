@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { id: 'tasks',        label: 'Tasks',        icon: '✅' },
   { id: 'alarms',       label: 'Alarms',       icon: '🔔' },
   { id: 'scheduler',   label: 'Scheduler',    icon: '🗓️' },
-  { id: 'calendar',    label: 'Calendar',     icon: '📅' },
+  { id: 'calendar',    label: 'Tamil Calendar', icon: '🗓️' },
   { id: 'stats',       label: 'Analytics',    icon: '📊' },
   { id: 'login',       label: 'Login / Account', icon: '🔑' },
 ];

@@ -23,7 +23,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
 
   const SECTION_LABELS = {
     dashboard: 'Dashboard', tasks: 'Tasks', alarms: 'Alarms',
-    scheduler: 'Scheduler', calendar: 'Calendar', stats: 'Analytics',
+    scheduler: 'Scheduler', calendar: 'தமிழ் நாட்காட்டி (Tamil Calendar)', 'tamil-calendar': 'தமிழ் நாட்காட்டி (Tamil Calendar)', stats: 'Analytics',
     admin: 'User Activity & Admin Portal',
     login: 'Login & Account Portal'
   };

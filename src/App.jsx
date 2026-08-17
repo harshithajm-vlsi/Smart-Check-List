@@ -5,13 +5,7 @@ import Dashboard from './components/Dashboard';
 import TasksPage from './components/TasksPage';
 import AlarmManager from './components/AlarmManager';
 import Scheduler from './components/Scheduler';
-import CalendarView from './components/CalendarView';
-import ProductivityStats from './components/ProductivityStats';
-import AdminPortal from './components/AdminPortal';
-import LoginModal from './components/LoginModal';
-import LoginPage from './components/LoginPage';
-import { AuthProvider } from './context/AuthContext';
-import { DataProvider } from './context/DataContext';
+import TamilCalendarView from './components/TamilCalendarView';
 
 import './styles/theme.css';
 import './styles/global.css';
@@ -68,7 +62,8 @@ function MainApp() {
       case 'scheduler':
         return <Scheduler />;
       case 'calendar':
-        return <CalendarView />;
+      case 'tamil-calendar':
+        return <TamilCalendarView />;
       case 'stats':
         return <ProductivityStats />;
       case 'admin':
