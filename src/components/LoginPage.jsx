@@ -403,30 +403,6 @@ export default function LoginPage({ onLoginSuccess }) {
                         {currentUser.role === 'owner' || currentUser.email === 'harshithajm70@gmail.com' ? '👑 Main Admin & System Owner (Full Access)' : currentUser.isAdmin ? '👑 Administrator' : '👤 Standard User'}
                       </span>
                     </div>
-                    {!currentUser.isAdmin && (
-                      <button className="btn btn-warning btn-sm mt-2" onClick={grantSelfAdmin}>
-                        Unlock Admin Privileges
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Multi-User Switcher (for demo mode) */}
-                  <div className="quick-switch-box mt-4">
-                    <h3>👥 Quick Account Switcher (Multi-User Simulation)</h3>
-                    <p className="text-muted text-xs mb-2">Switch between demo accounts to test permissions.</p>
-                    <div className="user-chips-grid">
-                      {allUsers.map(u => (
-                        <button
-                          key={u.uid}
-                          className={`chip-btn ${currentUser.uid === u.uid ? 'active' : ''}`}
-                          onClick={() => switchDemoUser(u.uid)}
-                        >
-                          <img src={u.photoURL} alt={u.displayName} className="chip-img" />
-                          <span>{u.displayName}</span>
-                          {u.role === 'admin' && <span className="admin-star">👑</span>}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
               )}
@@ -756,27 +732,6 @@ export default function LoginPage({ onLoginSuccess }) {
                 </button>
               </form>
             )}
-
-            {/* Quick Demo Switcher */}
-            <div className="quick-switch-section">
-              <span className="switch-label">⚡ Quick Demo Login:</span>
-              <div className="switch-chips">
-                {allUsers.map(user => (
-                  <button 
-                    key={user.uid}
-                    type="button"
-                    className="user-chip-btn"
-                    onClick={() => {
-                      switchDemoUser(user.uid);
-                      if (onLoginSuccess) onLoginSuccess();
-                    }}
-                  >
-                    <img src={user.photoURL} alt={user.displayName} className="chip-img" />
-                    <span>{user.displayName}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>

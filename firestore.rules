@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // User personal data isolation rule:
-    // Users can read/write ONLY their own document & subcollections under users/{userId}
+    // Users can read/write ONLY their own profile document & subcollections under users/{userId}
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
       
@@ -12,10 +12,14 @@ service cloud.firestore {
       }
     }
 
-    // Admin read access for platform monitoring (User Activity Admin Portal)
+    // Admin/Owner platform monitoring rule:
+    // Only authenticated system admins or owner can access global user activity metrics
     match /users/{document=**} {
-      allow read: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if request.auth != null && (
+        request.auth.token.email == 'harshithajm70@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
     }
   }
 }

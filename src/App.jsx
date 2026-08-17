@@ -16,7 +16,10 @@ import { DataProvider } from './context/DataContext';
 import './styles/theme.css';
 import './styles/global.css';
 
+import { useAuth } from './context/AuthContext';
+
 function MainApp() {
+  const { currentUser, loading } = useAuth();
   const [theme, setTheme] = useState(() => localStorage.getItem('sa_theme') || 'light');
   const [activeSection, setActiveSection] = useState('dashboard');
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -25,6 +28,34 @@ function MainApp() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('sa_theme', theme);
   }, [theme]);
+
+  // Loading state while checking authentication
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'var(--bg-app)',
+        color: 'var(--text-primary)'
+      }}>
+        <div style={{ fontSize: '3.2rem', marginBottom: '12px' }}>⏰</div>
+        <h2 style={{ fontWeight: 800, fontSize: '1.4rem' }}>Smart Alarm Hub</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>Securing authentication session...</p>
+      </div>
+    );
+  }
+
+  // Unauthenticated users -> Redirect directly to Sign Up / Login Page
+  if (!currentUser) {
+    return (
+      <div className="unauth-app-wrapper" style={{ minHeight: '100vh', background: 'var(--bg-app)' }}>
+        <LoginPage onLoginSuccess={() => setActiveSection('dashboard')} />
+      </div>
+    );
+  }
 
   const renderSection = () => {
     switch (activeSection) {

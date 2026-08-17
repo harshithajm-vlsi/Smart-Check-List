@@ -102,10 +102,19 @@ export default function Dashboard({ setActiveSection }) {
     <div className="dashboard-page animate-fadeIn">
       {/* Welcome Banner */}
       <div className="welcome-banner glass-card">
-        <div className="welcome-main">
-          <div className="welcome-greeting">
+        <div className="welcome-main" style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          {currentUser?.photoURL && (
+            <img 
+              src={currentUser.photoURL} 
+              alt={userName} 
+              className="welcome-user-avatar"
+              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--color-primary)', boxShadow: 'var(--shadow-md)' }}
+              onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=6366f1&color=fff`; }}
+            />
+          )}
+          <div className="welcome-greeting" style={{ flex: 1, minWidth: '220px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2>Hi {userName} 👋</h2>
+              <h2>Welcome, {userName} 👋</h2>
               {currentUser?.gender && (
                 <span 
                   style={{
@@ -125,12 +134,17 @@ export default function Dashboard({ setActiveSection }) {
                 </span>
               )}
             </div>
+            {currentUser?.email && (
+              <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', margin: '2px 0 4px' }}>
+                ✉️ Email: <strong style={{ color: 'var(--text-primary)' }}>{currentUser.email}</strong>
+              </p>
+            )}
             {currentUser?.bio ? (
-              <p className="welcome-bio-quote" style={{ fontStyle: 'italic', color: 'var(--text-secondary)', margin: '6px 0 2px', fontSize: '0.94rem' }}>
+              <p className="welcome-bio-quote" style={{ fontStyle: 'italic', color: 'var(--text-secondary)', margin: '4px 0 2px', fontSize: '0.92rem' }}>
                 💬 "{currentUser.bio}"
               </p>
             ) : (
-              <p style={{ margin: '4px 0 2px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Ready to conquer today?</p>
+              <p style={{ margin: '2px 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>Ready to conquer today?</p>
             )}
           </div>
           <div className="welcome-datetime">
