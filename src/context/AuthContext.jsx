@@ -192,18 +192,15 @@ export function AuthProvider({ children }) {
       const demoUsers = getStoredDemoUsers();
       updateDemoUsersList(demoUsers);
 
-      const activeUserId = localStorage.getItem('sa_active_user_id') || demoUsers[0].uid;
-      const foundUser = demoUsers.find(u => u.uid === activeUserId) || demoUsers[0];
-
-      const updatedUser = {
-        ...foundUser,
-        isOnline: true,
-        lastActiveAt: new Date().toISOString(),
-        isAdmin: foundUser.role === 'admin' || foundUser.role === 'owner'
-      };
-
-      setCurrentUser(updatedUser);
-      saveRememberedAccount(updatedUser);
+      // Require user to sign in or select saved account first on link click
+      const activeUserId = localStorage.getItem('sa_active_user_id');
+      if (activeUserId) {
+        const foundUser = demoUsers.find(u => u.uid === activeUserId);
+        if (foundUser) {
+          saveRememberedAccount(foundUser);
+        }
+      }
+      setCurrentUser(null);
       setLoading(false);
     }
   }, [isFirebaseConfigured]);
