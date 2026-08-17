@@ -5,7 +5,7 @@ import { useUserData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { getUserLocationAndWeather } from '../utils/weatherUtils';
 
-import TamilDashboardWidget from './TamilDashboardWidget';
+import { getFestivalsForISO, getTamilDateDetails } from '../utils/tamilCalendarUtils';
 
 const MOTIVATIONAL_QUOTES = [
   "Believe in yourself and all that you are. 🌟",
@@ -149,13 +149,38 @@ export default function Dashboard({ setActiveSection }) {
               <p style={{ margin: '2px 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>Ready to conquer today?</p>
             )}
           </div>
-          <div className="welcome-datetime">
-            <div className="welcome-date">
+          <div className="welcome-datetime" style={{ textAlign: 'right' }}>
+            <div className="welcome-date" style={{ fontWeight: 800 }}>
               {now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 700, margin: '2px 0' }}>
+              🗓️ {getTamilDateDetails(now).tamilMonth.en} {getTamilDateDetails(now).tamilDateNum} ({getTamilDateDetails(now).tamilYear.en})
             </div>
             <div className="welcome-time">
               {now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
             </div>
+            {(() => {
+              const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+              const fests = getFestivalsForISO(todayIso);
+              if (fests.length > 0) {
+                return (
+                  <div style={{
+                    marginTop: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    padding: '3px 10px',
+                    borderRadius: '12px',
+                    background: 'rgba(245, 158, 11, 0.18)',
+                    color: '#D97706',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    display: 'inline-block'
+                  }}>
+                    {fests[0].icon} Special Today: {fests[0].title}
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
         </div>
 
@@ -173,9 +198,6 @@ export default function Dashboard({ setActiveSection }) {
           </div>
         )}
       </div>
-
-      {/* Tamil Calendar & Panchangam Dashboard Widget */}
-      <TamilDashboardWidget onOpenFullCalendar={() => setActiveSection('tamil-calendar')} />
 
       {/* Quick Overview Grid */}
       <div className="stat-grid" style={{ marginTop: 20 }}>

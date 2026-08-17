@@ -105,8 +105,8 @@ export default function TamilCalendarView() {
         <div className="header-left">
           <span className="page-logo">🗓️</span>
           <div>
-            <h2>தமிழ் நாட்காட்டி & பஞ்சாங்கம்</h2>
-            <p>Tamil Panchangam, Indian National Holidays & Festival Hub</p>
+            <h2>Tamil Calendar & Panchangam</h2>
+            <p>Panchangam, Indian National Holidays & Festival Hub</p>
           </div>
         </div>
 
@@ -127,13 +127,12 @@ export default function TamilCalendarView() {
           <div className="section-card panchangam-hero">
             <div className="hero-top-bar">
               <div className="tamil-month-large">
-                <span className="ta-month">{currentPanchangam.tamilMonth.ta}</span>
-                <span className="en-month">({currentPanchangam.tamilMonth.en})</span>
+                <span className="ta-month">{currentPanchangam.tamilMonth.en}</span>
                 <span className="date-number">{currentPanchangam.tamilDateNum}</span>
               </div>
               <div className="tamil-year-badge">
-                <span>தமிழ் ஆண்டு: <strong>{currentPanchangam.tamilYear.ta}</strong> ({currentPanchangam.tamilYear.en})</span>
-                <span className="weekday-tag">· {currentPanchangam.weekday.ta} ({currentPanchangam.weekday.en})</span>
+                <span>Tamil Year: <strong>{currentPanchangam.tamilYear.en}</strong></span>
+                <span className="weekday-tag">· {currentPanchangam.weekday.en}</span>
               </div>
             </div>
 
@@ -142,23 +141,23 @@ export default function TamilCalendarView() {
               <div className="attr-card">
                 <span className="attr-icon">✨</span>
                 <div className="attr-meta">
-                  <span className="attr-label">நட்சத்திரம் (Nakshatra)</span>
-                  <span className="attr-val">{currentPanchangam.nakshatra.ta} ({currentPanchangam.nakshatra.en})</span>
+                  <span className="attr-label">Nakshatra</span>
+                  <span className="attr-val">{currentPanchangam.nakshatra.en}</span>
                 </div>
               </div>
 
               <div className="attr-card">
                 <span className="attr-icon">🌙</span>
                 <div className="attr-meta">
-                  <span className="attr-label">திதி (Tithi)</span>
-                  <span className="attr-val">{currentPanchangam.tithi.ta} ({currentPanchangam.tithi.en})</span>
+                  <span className="attr-label">Tithi</span>
+                  <span className="attr-val">{currentPanchangam.tithi.en}</span>
                 </div>
               </div>
 
               <div className="attr-card warning">
                 <span className="attr-icon">⏳</span>
                 <div className="attr-meta">
-                  <span className="attr-label">ராகு காலம் (Rahu Kalam)</span>
+                  <span className="attr-label">Rahu Kalam</span>
                   <span className="attr-val">{currentPanchangam.timings.rahu}</span>
                 </div>
               </div>
@@ -166,7 +165,7 @@ export default function TamilCalendarView() {
               <div className="attr-card success">
                 <span className="attr-icon">⭐</span>
                 <div className="attr-meta">
-                  <span className="attr-label">நல்ல நேரம் (Nalla Neram)</span>
+                  <span className="attr-label">Nalla Neram</span>
                   <span className="attr-val">{currentPanchangam.timings.nallaMorning}</span>
                 </div>
               </div>
@@ -174,7 +173,7 @@ export default function TamilCalendarView() {
               <div className="attr-card info">
                 <span className="attr-icon">☸️</span>
                 <div className="attr-meta">
-                  <span className="attr-label">எமகண்டம் (Yamagandam)</span>
+                  <span className="attr-label">Yamagandam</span>
                   <span className="attr-val">{currentPanchangam.timings.yama}</span>
                 </div>
               </div>
@@ -182,7 +181,7 @@ export default function TamilCalendarView() {
               <div className="attr-card info">
                 <span className="attr-icon">🕒</span>
                 <div className="attr-meta">
-                  <span className="attr-label">குளிகை (Kuligai)</span>
+                  <span className="attr-label">Kuligai</span>
                   <span className="attr-val">{currentPanchangam.timings.kuli}</span>
                 </div>
               </div>
@@ -195,7 +194,7 @@ export default function TamilCalendarView() {
               <button className="btn btn-ghost btn-icon" onClick={prevMonth}>‹</button>
               <div className="cal-title-box">
                 <span className="greg-month">{selectedDateObj.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</span>
-                <span className="tamil-month-sub">{currentPanchangam.tamilMonth.ta} ({currentPanchangam.tamilMonth.en})</span>
+                <span className="tamil-month-sub">{currentPanchangam.tamilMonth.en} Month</span>
               </div>
               <button className="btn btn-ghost btn-icon" onClick={nextMonth}>›</button>
               <button 
@@ -260,13 +259,13 @@ export default function TamilCalendarView() {
                     >
                       <div className="cell-top">
                         <span className="greg-num">{dayNum}</span>
-                        <span className="ta-num">{cellTamil.tamilDateNum} {cellTamil.tamilMonth.ta.substring(0, 3)}</span>
+                        <span className="ta-num">{cellTamil.tamilDateNum} {cellTamil.tamilMonth.en.substring(0, 3)}</span>
                       </div>
 
                       {dayFests.length > 0 && (
                         <div className="cell-fest-box">
                           <span className="fest-icon">{dayFests[0].icon}</span>
-                          <span className="fest-title-sm">{dayFests[0].titleTa || dayFests[0].title}</span>
+                          <span className="fest-title-sm">{dayFests[0].title}</span>
                         </div>
                       )}
                     </button>
