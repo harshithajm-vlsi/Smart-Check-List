@@ -296,7 +296,7 @@ export default function LoginPage({ onLoginSuccess }) {
                         type="text" 
                         value={nameInput} 
                         onChange={e => setNameInput(e.target.value)}
-                        placeholder="e.g. Harshu~~💜"
+                        placeholder="e.g. Alex Rivers"
                         className="form-input"
                         required
                       />
@@ -636,7 +636,7 @@ export default function LoginPage({ onLoginSuccess }) {
                     <span className="field-icon">👤</span>
                     <input 
                       type="text"
-                      placeholder="e.g. harshitha or name@example.com"
+                      placeholder="e.g. alex or name@example.com"
                       value={loginIdentifier}
                       onChange={e => setLoginIdentifier(e.target.value)}
                       required
@@ -677,7 +677,7 @@ export default function LoginPage({ onLoginSuccess }) {
                     <span className="field-icon">👤</span>
                     <input 
                       type="text"
-                      placeholder="e.g. Harshitha"
+                      placeholder="e.g. Alex Rivers"
                       value={regUsername}
                       onChange={e => setRegUsername(e.target.value)}
                       required
