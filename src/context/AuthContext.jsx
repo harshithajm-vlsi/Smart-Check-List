@@ -177,9 +177,9 @@ export function AuthProvider({ children }) {
         throw new Error(msg);
       }
     } else {
-      const name = window.prompt("Google Account Name:", "Harshitha");
+      const name = window.prompt("Google Account Name:", "Alex Rivers");
       if (!name) return null;
-      const email = window.prompt("Google Email Address:", MAIN_ADMIN_EMAIL);
+      const email = window.prompt("Google Email Address:", "user@example.com");
       if (!email) return null;
       
       const isMainAdmin = email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
