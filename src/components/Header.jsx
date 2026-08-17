@@ -44,6 +44,20 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
       </div>
 
       <div className="header-right">
+        <button 
+          className="btn btn-ghost btn-sm"
+          onClick={() => {
+            const link = window.location.origin.includes('localhost')
+              ? 'https://smart-check-list-xxtu.vercel.app'
+              : window.location.href;
+            navigator.clipboard.writeText(link);
+            alert(`🔗 Shareable App Link Copied!\n\n${link}`);
+          }}
+          title="Copy shareable link"
+        >
+          🔗 Share App
+        </button>
+
         {notifStatus !== 'granted' && (
           <button className="btn btn-ghost btn-sm" onClick={handleNotifRequest} title="Enable notifications">
             🔔 Enable Notifications
@@ -97,6 +111,20 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
               </div>
 
               <div className="dropdown-divider" />
+
+              <button 
+                className="dropdown-item-btn"
+                onClick={() => {
+                  setShowDropdown(false);
+                  const link = window.location.origin.includes('localhost')
+                    ? 'https://smart-check-list-xxtu.vercel.app'
+                    : window.location.href;
+                  navigator.clipboard.writeText(link);
+                  alert(`📋 Shareable App Link Copied!\n\n${link}`);
+                }}
+              >
+                🔗 Copy Shareable Link
+              </button>
 
               <button 
                 className="dropdown-item-btn"
