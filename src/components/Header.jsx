@@ -87,7 +87,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
               <span className="auth-btn-icon">👤</span>
             )}
             <span className="auth-btn-name">
-              {currentUser ? currentUser.displayName.split(' ')[0] : 'Sign In'}
+              {currentUser ? (currentUser.displayName || currentUser.email?.split('@')[0] || 'User').split(' ')[0] : 'Sign In'}
             </span>
           </button>
 

@@ -47,25 +47,51 @@ class ErrorBoundary extends Component {
         }}>
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>⏰</div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Smart Alarm Hub</h2>
-          <p style={{ color: '#94A3B8', maxWidth: '420px', fontSize: '0.9rem', marginBottom: '20px' }}>
-            The application encountered a transient issue. Click below to reload your dashboard.
+          <p style={{ color: '#94A3B8', maxWidth: '440px', fontSize: '0.9rem', marginBottom: '12px' }}>
+            The application encountered a transient issue.
           </p>
-          <button 
-            style={{
-              background: '#3EADA0',
-              color: '#FFFFFF',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              fontSize: '0.95rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(62,173,160,0.4)'
-            }}
-            onClick={() => window.location.reload()}
-          >
-            🔄 Reload Smart Alarm App
-          </button>
+          {this.state.error?.message && (
+            <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#FCA5A5', padding: '8px 14px', borderRadius: '10px', fontSize: '0.8rem', fontFamily: 'monospace', marginBottom: '20px', maxWidth: '500px' }}>
+              ⚠️ {this.state.error.message}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button 
+              style={{
+                background: '#3EADA0',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '12px',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(62,173,160,0.4)'
+              }}
+              onClick={() => window.location.reload()}
+            >
+              🔄 Reload Smart Alarm App
+            </button>
+            <button 
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255,255,255,0.2)',
+                padding: '12px 20px',
+                borderRadius: '12px',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                localStorage.removeItem('sa_remembered_accounts_v1');
+                localStorage.removeItem('sa_active_user_id');
+                window.location.reload();
+              }}
+            >
+              🧹 Reset Session & Reload
+            </button>
+          </div>
         </div>
       );
     }

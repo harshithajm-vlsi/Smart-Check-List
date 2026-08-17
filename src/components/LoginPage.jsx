@@ -690,7 +690,7 @@ export default function LoginPage({ onLoginSuccess }) {
                         onClick={() => switchDemoUser(acc.uid || acc.email)}
                         style={{ marginTop: '8px' }}
                       >
-                        Continue as {acc.displayName.split(' ')[0]} →
+                        Continue as {(acc.displayName || acc.email?.split('@')[0] || 'User').split(' ')[0]} →
                       </button>
                     </div>
                   ))}
