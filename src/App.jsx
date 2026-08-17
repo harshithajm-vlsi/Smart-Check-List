@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -6,11 +6,72 @@ import TasksPage from './components/TasksPage';
 import AlarmManager from './components/AlarmManager';
 import Scheduler from './components/Scheduler';
 import TamilCalendarView from './components/TamilCalendarView';
+import ProductivityStats from './components/ProductivityStats';
+import AdminPortal from './components/AdminPortal';
+import LoginModal from './components/LoginModal';
+import LoginPage from './components/LoginPage';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { DataProvider } from './context/DataContext';
 
 import './styles/theme.css';
 import './styles/global.css';
 
-import { useAuth } from './context/AuthContext';
+// Error Boundary Fallback to prevent blank white screens
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("App Runtime Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          background: '#0F172A',
+          color: '#F8FAFC',
+          padding: '24px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>⏰</div>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Smart Alarm Hub</h2>
+          <p style={{ color: '#94A3B8', maxWidth: '420px', fontSize: '0.9rem', marginBottom: '20px' }}>
+            The application encountered a transient issue. Click below to reload your dashboard.
+          </p>
+          <button 
+            style={{
+              background: '#3EADA0',
+              color: '#FFFFFF',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '12px',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(62,173,160,0.4)'
+            }}
+            onClick={() => window.location.reload()}
+          >
+            🔄 Reload Smart Alarm App
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function MainApp() {
   const { currentUser, loading } = useAuth();
@@ -35,7 +96,7 @@ function MainApp() {
         background: 'var(--bg-app)',
         color: 'var(--text-primary)'
       }}>
-        <div style={{ fontSize: '3.2rem', marginBottom: '12px' }}>⏰</div>
+        <div style={{ fontSize: '3.2rem', marginBottom: '12px', animation: 'spin 3s infinite linear' }}>⏰</div>
         <h2 style={{ fontWeight: 800, fontSize: '1.4rem' }}>Smart Alarm Hub</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>Securing authentication session...</p>
       </div>
@@ -105,12 +166,12 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <MainApp />
-      </DataProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <DataProvider>
+          <MainApp />
+        </DataProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
-
-
