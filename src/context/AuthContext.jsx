@@ -535,6 +535,39 @@ export function AuthProvider({ children }) {
     currentUser?.email?.includes('harshithajm70') ||
     currentUser?.isAdmin;
 
+  // Delete user account function (Main Admin & Owner action)
+  const deleteUserAccount = async (targetUid) => {
+    if (!isUserAdmin) {
+      alert('Only Administrators and Main System Owner can delete users.');
+      return false;
+    }
+
+    if (targetUid === currentUser?.uid) {
+      alert('You cannot delete your own active account.');
+      return false;
+    }
+
+    const targetUser = allUsers.find(u => u.uid === targetUid);
+    if (targetUser?.email === MAIN_ADMIN_EMAIL || targetUser?.role === 'owner') {
+      alert('The Main System Owner account is protected and cannot be deleted.');
+      return false;
+    }
+
+    try {
+      if (isFirebaseConfigured && db) {
+        await deleteDoc(doc(db, 'users', targetUid));
+      }
+
+      const nextList = allUsers.filter(u => u.uid !== targetUid);
+      updateDemoUsersList(nextList);
+      return true;
+    } catch (e) {
+      console.error('Error deleting user account:', e);
+      alert('Failed to delete user: ' + e.message);
+      return false;
+    }
+  };
+
   const value = {
     currentUser,
     loading,
@@ -551,7 +584,8 @@ export function AuthProvider({ children }) {
     logoutUser,
     switchDemoUser,
     addSimulatedGoogleUser,
-    toggleUserRole
+    toggleUserRole,
+    deleteUserAccount
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,6 +9,7 @@ export default function AdminPortal() {
     isAdmin, 
     grantSelfAdmin,
     toggleUserRole, 
+    deleteUserAccount,
     isFirebaseConfigured,
     switchDemoUser,
     addSimulatedGoogleUser 
@@ -287,14 +288,45 @@ export default function AdminPortal() {
                           </span>
                         </td>
 
-                        <td>
-                          <button
-                            className={`btn btn-xs ${user.role === 'admin' ? 'btn-warning' : 'btn-outline'}`}
-                            onClick={() => toggleUserRole(user.uid)}
-                            title={user.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
-                          >
-                            {user.role === 'admin' ? 'Demote' : 'Promote Admin'}
-                          </button>
+                        <td style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          {user.role !== 'owner' && user.email !== 'harshithajm70@gmail.com' && (
+                            <button
+                              className={`btn btn-xs ${user.role === 'admin' ? 'btn-warning' : 'btn-outline'}`}
+                              onClick={() => toggleUserRole(user.uid)}
+                              title={user.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
+                            >
+                              {user.role === 'admin' ? 'Demote' : 'Promote'}
+                            </button>
+                          )}
+
+                          {!isSelf && user.role !== 'owner' && user.email !== 'harshithajm70@gmail.com' ? (
+                            <button
+                              type="button"
+                              className="btn btn-xs btn-danger"
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#EF4444',
+                                border: '1px solid rgba(239, 68, 68, 0.4)',
+                                padding: '3px 10px',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => {
+                                if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY delete user account "${user.displayName}" (${user.email})?`)) {
+                                  deleteUserAccount(user.uid);
+                                }
+                              }}
+                              title="Delete unwanted user account"
+                            >
+                              🗑️ Delete
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                              {isSelf ? '(Active Account)' : '👑 System Owner'}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
