@@ -136,11 +136,6 @@ export default function Dashboard({ setActiveSection }) {
                 </span>
               )}
             </div>
-            {currentUser?.email && (
-              <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', margin: '2px 0 4px' }}>
-                ✉️ Email: <strong style={{ color: 'var(--text-primary)' }}>{currentUser.email}</strong>
-              </p>
-            )}
             {currentUser?.bio ? (
               <p className="welcome-bio-quote" style={{ fontStyle: 'italic', color: 'var(--text-secondary)', margin: '4px 0 2px', fontSize: '0.92rem' }}>
                 💬 "{currentUser.bio}"
