@@ -3,7 +3,7 @@ import { formatTime12 } from '../utils/timeUtils';
 import { useUserData } from '../context/DataContext';
 
 /* ─── Indian Calendar Data ──────────────────────────────────
-   Tamil months, Amavasya/Pournami dates, major Indian festivals
+   Tamil months, Amavasya/Pournami dates, complete Indian festivals (2025-2026)
 ─────────────────────────────────────────────────────────── */
 
 const TAMIL_MONTHS = [
@@ -25,13 +25,14 @@ const AMAVASYA_DATES = new Set([
   '2025-06-25','2025-07-24','2025-08-23','2025-09-21','2025-10-21',
   '2025-11-20','2025-12-20','2026-01-18','2026-02-17','2026-03-18',
   '2026-04-17','2026-05-16','2026-06-15','2026-07-14','2026-08-12',
+  '2026-09-11','2026-10-10','2026-11-09','2026-12-09'
 ]);
 const POURNAMI_DATES = new Set([
   '2025-01-13','2025-02-12','2025-03-14','2025-04-13','2025-05-12',
   '2025-06-11','2025-07-10','2025-08-09','2025-09-07','2025-10-07',
   '2025-11-05','2025-12-04','2026-01-03','2026-02-01','2026-03-03',
   '2026-04-02','2026-05-01','2026-05-31','2026-06-29','2026-07-29',
-  '2026-08-27',
+  '2026-08-27','2026-09-25','2026-10-25','2026-11-24','2026-12-23'
 ]);
 const EKADASHI_DATES = new Set([
   '2025-01-10','2025-01-25','2025-02-08','2025-02-24','2025-03-10',
@@ -39,34 +40,91 @@ const EKADASHI_DATES = new Set([
   '2025-06-06','2025-06-21','2025-07-06','2025-07-20','2025-08-05',
   '2025-08-19','2025-09-03','2025-09-18','2025-10-03','2025-10-17',
   '2025-11-01','2025-11-16','2025-12-01','2025-12-15','2025-12-31',
+  '2026-01-14','2026-01-29','2026-02-13','2026-02-27','2026-03-14',
+  '2026-03-29','2026-04-13','2026-04-28','2026-05-13','2026-05-27',
+  '2026-06-11','2026-06-26','2026-07-10','2026-07-25','2026-08-09',
+  '2026-08-23','2026-09-07','2026-09-22','2026-10-07','2026-10-21'
 ]);
 
 const FESTIVALS = {
-  '2025-01-14': 'Pongal / Makar Sankranti',
-  '2025-01-15': 'Mattu Pongal',
-  '2025-01-26': 'Republic Day',
-  '2025-02-26': 'Maha Shivaratri',
-  '2025-03-14': 'Holi',
-  '2025-03-30': 'Eid al-Fitr',
-  '2025-04-06': 'Ugadi / Gudi Padwa',
-  '2025-04-14': 'Tamil New Year / Vishu',
-  '2025-04-15': 'Ambedkar Jayanti',
-  '2025-04-18': 'Good Friday',
-  '2025-05-01': 'Labour Day',
-  '2025-05-12': 'Buddha Purnima',
-  '2025-06-07': 'Eid al-Adha',
-  '2025-07-06': 'Guru Purnima',
-  '2025-08-15': 'Independence Day',
-  '2025-08-16': 'Vinayaka Chaturthi',
-  '2025-09-05': 'Teachers\' Day',
-  '2025-10-02': 'Gandhi Jayanti',
-  '2025-10-13': 'Dussehra',
-  '2025-10-20': 'Diwali',
-  '2025-11-01': 'Karthigai Deepam',
-  '2025-12-25': 'Christmas',
-  '2026-01-14': 'Pongal',
-  '2026-01-26': 'Republic Day',
-  '2026-08-15': 'Independence Day',
+  // 2025 Major Indian Festivals
+  '2025-01-01': '🎆 New Year\'s Day',
+  '2025-01-14': '🌾 Pongal / Makar Sankranti',
+  '2025-01-15': '🐄 Mattu Pongal / Thiruvalluvar Day',
+  '2025-01-16': '🌾 Kaanum Pongal',
+  '2025-01-26': '🇮🇳 Republic Day',
+  '2025-02-02': '🌸 Saraswati Puja / Vasant Panchami',
+  '2025-02-26': '🕉️ Maha Shivaratri',
+  '2025-03-13': '🔥 Holika Dahan',
+  '2025-03-14': '🎨 Holi',
+  '2025-03-30': '🌙 Eid al-Fitr',
+  '2025-03-31': '🌺 Ugadi / Gudi Padwa',
+  '2025-04-06': '🏹 Ram Navami',
+  '2025-04-10': '🪷 Mahavir Jayanti',
+  '2025-04-14': '🌟 Tamil New Year / Vishu / Baisakhi',
+  '2025-04-15': '📜 Ambedkar Jayanti',
+  '2025-04-18': '✝️ Good Friday',
+  '2025-04-20': '🐣 Easter Sunday',
+  '2025-05-01': '👷 Labour Day / Maharashtra Day',
+  '2025-05-12': '🪷 Buddha Purnima',
+  '2025-06-07': '🕌 Bakrid / Eid al-Adha',
+  '2025-07-06': '🕌 Muharram',
+  '2025-07-10': '🪷 Guru Purnima',
+  '2025-08-09': '🪢 Raksha Bandhan',
+  '2025-08-15': '🇮🇳 Independence Day',
+  '2025-08-16': '🪈 Krishna Janmashtami',
+  '2025-08-27': '🐘 Ganesh Chaturthi',
+  '2025-09-05': '🌺 Onam & 🍎 Teachers\' Day',
+  '2025-09-22': '💃 Navratri Begins',
+  '2025-10-01': '⚔️ Ayudha Puja / Maha Navami',
+  '2025-10-02': '🏹 Vijayadashami / Dussehra & 🕊️ Gandhi Jayanti',
+  '2025-10-09': '🌕 Karwa Chauth',
+  '2025-10-20': '🪔 Diwali / Lakshmi Puja',
+  '2025-10-22': '🎁 Govardhan Puja / Bhai Dooj',
+  '2025-11-01': '🪔 Karthigai Deepam & 🚩 Kannada Rajyotsava',
+  '2025-11-05': '🪯 Guru Nanak Jayanti',
+  '2025-12-25': '🎄 Christmas',
+
+  // 2026 Major Indian Festivals
+  '2026-01-01': '🎆 New Year\'s Day',
+  '2026-01-14': '🌾 Pongal / Makar Sankranti',
+  '2026-01-15': '🐄 Mattu Pongal / Thiruvalluvar Day',
+  '2026-01-16': '🌾 Kaanum Pongal',
+  '2026-01-23': '🌸 Saraswati Puja / Vasant Panchami',
+  '2026-01-26': '🇮🇳 Republic Day',
+  '2026-02-15': '🕉️ Maha Shivaratri',
+  '2026-03-03': '🔥 Holika Dahan',
+  '2026-03-04': '🎨 Holi',
+  '2026-03-20': '🌙 Eid al-Fitr',
+  '2026-03-21': '🌺 Ugadi / Gudi Padwa',
+  '2026-03-27': '🏹 Ram Navami',
+  '2026-03-31': '🪷 Mahavir Jayanti',
+  '2026-04-03': '✝️ Good Friday',
+  '2026-04-05': '🐣 Easter Sunday',
+  '2026-04-14': '🌟 Tamil New Year / Vishu / Baisakhi',
+  '2026-04-15': '📜 Ambedkar Jayanti',
+  '2026-05-01': '👷 Labour Day / Maharashtra Day',
+  '2026-05-27': '🕌 Bakrid / Eid al-Adha',
+  '2026-05-31': '🪷 Buddha Purnima',
+  '2026-06-25': '🕌 Muharram',
+  '2026-07-29': '🪷 Guru Purnima',
+  '2026-08-15': '🇮🇳 Independence Day',
+  '2026-08-26': '🌺 Onam',
+  '2026-08-28': '🪢 Raksha Bandhan',
+  '2026-09-04': '🪈 Krishna Janmashtami',
+  '2026-09-05': '🍎 Teachers\' Day',
+  '2026-09-14': '🐘 Ganesh Chaturthi',
+  '2026-10-02': '🕊️ Gandhi Jayanti',
+  '2026-10-11': '💃 Navratri Begins',
+  '2026-10-19': '⚔️ Ayudha Puja / Maha Navami',
+  '2026-10-20': '🏹 Vijayadashami / Dussehra',
+  '2026-10-28': '🌕 Karwa Chauth',
+  '2026-11-01': '🚩 Kannada Rajyotsava',
+  '2026-11-08': '🪔 Diwali / Lakshmi Puja',
+  '2026-11-10': '🎁 Govardhan Puja / Bhai Dooj',
+  '2026-11-20': '🪔 Karthigai Deepam',
+  '2026-11-24': '🪯 Guru Nanak Jayanti',
+  '2026-12-25': '🎄 Christmas',
 };
 
 function daysInMonth(year, month) {
@@ -83,6 +141,28 @@ function toISO(year, month, day) {
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+// Get Animated Icon Class for Special Dates
+function getAnimatedBadge(fest, isAmav, isPour, isEka) {
+  if (fest) {
+    if (fest.includes('Diwali') || fest.includes('Deepam')) return { icon: '🪔', animClass: 'diya-flame', title: fest };
+    if (fest.includes('Holi')) return { icon: '🎨', animClass: 'holi-sparkle', title: fest };
+    if (fest.includes('Pongal') || fest.includes('Sankranti') || fest.includes('Onam')) return { icon: '🌾', animClass: 'harvest-bounce', title: fest };
+    if (fest.includes('Independence') || fest.includes('Republic')) return { icon: '🇮🇳', animClass: 'flag-wave', title: fest };
+    if (fest.includes('Ganesh') || fest.includes('Vinayaka')) return { icon: '🐘', animClass: 'ganesha-glow', title: fest };
+    if (fest.includes('Shivaratri')) return { icon: '🕉️', animClass: 'shiva-om', title: fest };
+    if (fest.includes('Raksha')) return { icon: '🪢', animClass: 'rakhi-spin', title: fest };
+    if (fest.includes('Janmashtami')) return { icon: '🪈', animClass: 'krishna-sway', title: fest };
+    if (fest.includes('Navratri') || fest.includes('Dussehra') || fest.includes('Vijayadashami')) return { icon: '🏹', animClass: 'navratri-flash', title: fest };
+    if (fest.includes('Christmas')) return { icon: '🎄', animClass: 'xmas-twinkle', title: fest };
+    if (fest.includes('Eid') || fest.includes('Bakrid')) return { icon: '🌙', animClass: 'eid-crescent', title: fest };
+    return { icon: fest.split(' ')[0] || '🎉', animClass: 'fest-pulse', title: fest };
+  }
+  if (isPour) return { icon: '🌕', animClass: 'pournami-halo', title: 'Pournami (Full Moon)' };
+  if (isAmav) return { icon: '🌑', animClass: 'amavasya-pulse', title: 'Amavasya (New Moon)' };
+  if (isEka) return { icon: '🪷', animClass: 'ekadashi-float', title: 'Ekadashi' };
+  return null;
+}
 
 export default function CalendarView() {
   const today = new Date();
@@ -137,7 +217,7 @@ export default function CalendarView() {
 
         {/* Legend */}
         <div className="cal-legend">
-          <span><span className="dot festival" /> Festival</span>
+          <span><span className="dot festival" /> Festival (Animated)</span>
           <span><span className="dot amavasya" /> Amavasya</span>
           <span><span className="dot pournami" /> Pournami</span>
           <span><span className="dot ekadashi" /> Ekadashi</span>
@@ -177,6 +257,8 @@ export default function CalendarView() {
               const dayTamilMonth = getTamilMonth(dayDate.getMonth());
               const dayTaskCount = tasks.filter(t => t.dueDate === iso).length;
 
+              const animBadge = getAnimatedBadge(dayFest, dayAmav, dayPour, dayEka);
+
               return (
                 <button 
                   key={iso} 
@@ -189,12 +271,19 @@ export default function CalendarView() {
                     <span className="cal-tamil-date">{dayTamilDate} {dayTamilMonth.substring(0, 4)}</span>
                   </div>
 
+                  {/* Animated Visual Image / Icon for Special Dates */}
+                  {animBadge && (
+                    <div className="cell-animated-wrapper" title={animBadge.title}>
+                      <span className={`anim-icon ${animBadge.animClass}`}>{animBadge.icon}</span>
+                    </div>
+                  )}
+
                   {/* Observances mentioned directly INSIDE the box */}
                   <div className="cell-observances-inline">
-                    {dayFest && <span className="inline-tag festival" title={dayFest}>🎊 {dayFest}</span>}
-                    {dayAmav && <span className="inline-tag amavasya">🌑 Amavasya</span>}
-                    {dayPour && <span className="inline-tag pournami">🌕 Pournami</span>}
-                    {dayEka && <span className="inline-tag ekadashi">🙏 Ekadashi</span>}
+                    {dayFest && <span className="inline-tag festival" title={dayFest}>{dayFest}</span>}
+                    {dayAmav && !dayFest && <span className="inline-tag amavasya">🌑 Amavasya</span>}
+                    {dayPour && !dayFest && <span className="inline-tag pournami">🌕 Pournami</span>}
+                    {dayEka && !dayFest && <span className="inline-tag ekadashi">🙏 Ekadashi</span>}
                   </div>
 
                   {/* Tasks count inside box */}
@@ -295,13 +384,13 @@ export default function CalendarView() {
         /* Compact Day Cell Box */
         .cal-cell {
           position: relative;
-          min-height: 66px;
+          min-height: 72px;
           padding: 6px 6px;
           display: flex; 
           flex-direction: column; 
           align-items: stretch;
           justify-content: flex-start;
-          gap: 3px;
+          gap: 2px;
           background: transparent;
           cursor: pointer; 
           transition: background 0.15s ease;
@@ -359,21 +448,113 @@ export default function CalendarView() {
         }
 
         .cal-tamil-date { 
-          font-size: 0.68rem; 
+          font-size: 0.65rem; 
           color: var(--text-muted); 
           font-weight: 600;
         }
+
+        /* Animated Icon Wrapper inside Date Box */
+        .cell-animated-wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 1px 0;
+        }
+
+        .anim-icon {
+          display: inline-block;
+          font-size: 1.25rem;
+          line-height: 1;
+        }
+
+        /* ─── Keyframe Animations for Special Date Icons ─── */
+        @keyframes flameFlicker {
+          0%, 100% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 4px #F59E0B); }
+          50% { transform: scale(1.2) rotate(4deg); filter: drop-shadow(0 0 10px #EF4444); }
+        }
+        @keyframes holiSparkle {
+          0%, 100% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 3px #EC4899); }
+          50% { transform: rotate(20deg) scale(1.25); filter: drop-shadow(0 0 9px #8B5CF6); }
+        }
+        @keyframes harvestBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px) scale(1.12); }
+        }
+        @keyframes flagWave {
+          0%, 100% { transform: skewY(0deg) scale(1); }
+          50% { transform: skewY(-5deg) scale(1.1); }
+        }
+        @keyframes ganeshaGlow {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px #F59E0B); }
+          50% { transform: scale(1.15); filter: drop-shadow(0 0 10px #EAB308); }
+        }
+        @keyframes omGlow {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px #6366F1); }
+          50% { transform: scale(1.15); filter: drop-shadow(0 0 10px #A855F7); }
+        }
+        @keyframes rakhiSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes krishnaSway {
+          0%, 100% { transform: rotate(-10deg); }
+          50% { transform: rotate(10deg); }
+        }
+        @keyframes navratriFlash {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px #EF4444); }
+          50% { transform: scale(1.18); filter: drop-shadow(0 0 10px #F59E0B); }
+        }
+        @keyframes pournamiHalo {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px #F97316); }
+          50% { transform: scale(1.2); filter: drop-shadow(0 0 11px #FBBF24); }
+        }
+        @keyframes amavasyaPulse {
+          0%, 100% { transform: scale(1); opacity: 0.85; filter: drop-shadow(0 0 3px #6366F1); }
+          50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 9px #818CF8); }
+        }
+        @keyframes ekadashiFloat {
+          0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 3px #10B981); }
+          50% { transform: translateY(-4px) scale(1.12); filter: drop-shadow(0 0 9px #34D399); }
+        }
+        @keyframes xmasTwinkle {
+          0%, 100% { transform: scale(1) rotate(-4deg); }
+          50% { transform: scale(1.14) rotate(4deg); filter: drop-shadow(0 0 9px #22C55E); }
+        }
+        @keyframes crescentGlow {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px #10B981); }
+          50% { transform: scale(1.16); filter: drop-shadow(0 0 9px #F59E0B); }
+        }
+        @keyframes festPulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.12); }
+        }
+
+        .diya-flame { animation: flameFlicker 1.4s infinite ease-in-out; }
+        .holi-sparkle { animation: holiSparkle 1.6s infinite ease-in-out; }
+        .harvest-bounce { animation: harvestBounce 1.5s infinite ease-in-out; }
+        .flag-wave { animation: flagWave 2s infinite ease-in-out; }
+        .ganesha-glow { animation: ganeshaGlow 1.8s infinite ease-in-out; }
+        .shiva-om { animation: omGlow 1.8s infinite ease-in-out; }
+        .rakhi-spin { animation: rakhiSpin 7s infinite linear; }
+        .krishna-sway { animation: krishnaSway 2s infinite ease-in-out; }
+        .navratri-flash { animation: navratriFlash 1.4s infinite ease-in-out; }
+        .pournami-halo { animation: pournamiHalo 2s infinite ease-in-out; }
+        .amavasya-pulse { animation: amavasyaPulse 2s infinite ease-in-out; }
+        .ekadashi-float { animation: ekadashiFloat 1.8s infinite ease-in-out; }
+        .xmas-twinkle { animation: xmasTwinkle 1.6s infinite ease-in-out; }
+        .eid-crescent { animation: crescentGlow 2s infinite ease-in-out; }
+        .fest-pulse { animation: festPulse 1.8s infinite ease-in-out; }
 
         .cell-observances-inline {
           display: flex;
           flex-direction: column;
           gap: 2px;
           width: 100%;
-          margin-top: 2px;
+          margin-top: 1px;
         }
 
         .inline-tag {
-          font-size: 0.68rem;
+          font-size: 0.64rem;
           font-weight: 700;
           padding: 1px 4px;
           border-radius: 4px;
@@ -389,7 +570,7 @@ export default function CalendarView() {
         .inline-tag.ekadashi { background: rgba(16, 185, 129, 0.18); color: #059669; }
 
         .cell-tasks-badge {
-          font-size: 0.66rem;
+          font-size: 0.65rem;
           font-weight: 700;
           color: var(--color-primary);
           background: rgba(var(--color-primary-rgb, 99, 102, 241), 0.12);
@@ -408,10 +589,11 @@ export default function CalendarView() {
         .ekadashi-tag { background: rgba(16,185,129,0.12); color: #059669; }
 
         @media (max-width: 600px) {
-          .cal-cell { min-height: 56px; padding: 4px; }
+          .cal-cell { min-height: 60px; padding: 4px; }
           .cal-day-num { font-size: 0.82rem; }
-          .cal-tamil-date { font-size: 0.6rem; }
-          .inline-tag { font-size: 0.6rem; padding: 0 2px; }
+          .cal-tamil-date { font-size: 0.58rem; }
+          .inline-tag { font-size: 0.58rem; padding: 0 2px; }
+          .anim-icon { font-size: 1.05rem; }
         }
       `}</style>
     </div>
