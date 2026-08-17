@@ -16,7 +16,7 @@ const getStoredFirebaseConfig = () => {
     const customConfig = localStorage.getItem('sa_firebase_config');
     if (customConfig) {
       const parsed = JSON.parse(customConfig);
-      if (parsed.apiKey && parsed.apiKey !== 'YOUR_FIREBASE_API_KEY') {
+      if (parsed && parsed.apiKey && parsed.apiKey !== 'YOUR_FIREBASE_API_KEY') {
         return parsed;
       }
     }
@@ -33,11 +33,11 @@ const getStoredFirebaseConfig = () => {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
   };
 
-  if (envConfig.apiKey && envConfig.apiKey !== 'YOUR_FIREBASE_API_KEY' && envConfig.projectId) {
+  if (envConfig.apiKey && envConfig.apiKey !== 'YOUR_FIREBASE_API_KEY') {
     return envConfig;
   }
 
-  return null;
+  return envConfig;
 };
 
 const firebaseConfig = getStoredFirebaseConfig();
@@ -48,16 +48,36 @@ let db = null;
 let googleProvider = null;
 let isFirebaseConfigured = false;
 
-if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_FIREBASE_API_KEY') {
-  try {
+try {
+  if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_FIREBASE_API_KEY') {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
     googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
     isFirebaseConfigured = true;
-  } catch (err) {
-    console.warn('Firebase initialization notice:', err);
+  } else {
+    // Attempt standard initialization with environment or default app
+    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+    isFirebaseConfigured = true;
+  }
+} catch (err) {
+  console.warn('Firebase initialization notice:', err);
+  if (!auth) {
+    try {
+      app = getApps().length > 0 ? getApp() : null;
+      if (app) {
+        auth = getAuth(app);
+        db = getFirestore(app);
+        googleProvider = new GoogleAuthProvider();
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
+        isFirebaseConfigured = true;
+      }
+    } catch (e) {}
   }
 }
 
@@ -78,7 +98,6 @@ export {
 export const saveFirebaseCredentials = (config) => {
   if (typeof config === 'string') {
     try {
-      // Extract key-value pairs if user pasted JS object snippet
       const apiKeyMatch = config.match(/apiKey:\s*["']([^"']+)["']/);
       const authDomainMatch = config.match(/authDomain:\s*["']([^"']+)["']/);
       const projectIdMatch = config.match(/projectId:\s*["']([^"']+)["']/);
@@ -104,7 +123,6 @@ export const saveFirebaseCredentials = (config) => {
     }
   }
 
-  // Fallback direct object save
   localStorage.setItem('sa_firebase_config', JSON.stringify(config));
   window.location.reload();
   return true;

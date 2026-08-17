@@ -166,14 +166,17 @@ export function AuthProvider({ children }) {
   // Real Google Authentication via Firebase OAuth
   const loginWithGoogle = async () => {
     setAuthError(null);
-    if (!isFirebaseConfigured || !auth || !googleProvider) {
-      const msg = 'Firebase Authentication is not configured. Please enter your Firebase config keys to enable Google Sign-In.';
+    let activeAuth = auth;
+    let activeProvider = googleProvider;
+
+    if (!activeAuth || !activeProvider) {
+      const msg = 'Firebase Authentication is initializing. Please click Google Sign-In again.';
       setAuthError(msg);
       throw new Error(msg);
     }
 
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(activeAuth, activeProvider);
       return result.user;
     } catch (error) {
       console.error('Google Sign-In Error:', error);
@@ -182,6 +185,8 @@ export function AuthProvider({ children }) {
         msg = 'Google Sign-In popup was closed before completing authentication.';
       } else if (error.code === 'auth/cancelled-popup-request') {
         msg = 'Sign-In request was cancelled.';
+      } else if (error.code === 'auth/unauthorized-domain') {
+        msg = 'Domain not authorized in Firebase Console. Add your Vercel URL to Firebase -> Auth -> Settings -> Authorized Domains.';
       }
       setAuthError(msg);
       throw new Error(msg);
