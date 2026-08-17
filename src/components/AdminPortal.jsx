@@ -259,8 +259,8 @@ export default function AdminPortal() {
                         </td>
 
                         <td>
-                          <span className={`role-badge ${user.role}`}>
-                            {user.role === 'admin' ? '👑 Admin' : '👤 User'}
+                          <span className={`role-badge ${user.role === 'owner' || user.email === 'harshithajm70@gmail.com' ? 'admin' : user.role}`}>
+                            {user.role === 'owner' || user.email === 'harshithajm70@gmail.com' ? '👑 Owner (Main Admin)' : user.role === 'admin' ? '👑 Admin' : '👤 User'}
                           </span>
                         </td>
 

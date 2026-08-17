@@ -399,8 +399,8 @@ export default function LoginPage({ onLoginSuccess }) {
                     </div>
                     <div className="acc-row">
                       <span className="acc-label">Current Role</span>
-                      <span className="acc-val font-bold">
-                        {currentUser.isAdmin ? '👑 Administrator (Owner)' : '👤 Standard User'}
+                      <span className="acc-val font-bold" style={{ color: 'var(--color-primary)' }}>
+                        {currentUser.role === 'owner' || currentUser.email === 'harshithajm70@gmail.com' ? '👑 Main Admin & System Owner (Full Access)' : currentUser.isAdmin ? '👑 Administrator' : '👤 Standard User'}
                       </span>
                     </div>
                     {!currentUser.isAdmin && (

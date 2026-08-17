@@ -24,16 +24,19 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
 
+const MAIN_ADMIN_EMAIL = 'harshithajm70@gmail.com';
+
 // Default demo users list for multi-user simulation
 const INITIAL_DEMO_USERS = [
   {
-    uid: 'demo-admin-1',
-    displayName: 'Harshu~~💜',
-    email: 'harshitha@admin.smartalarm.com',
+    uid: 'owner-admin-harshitha',
+    displayName: 'Harshitha',
+    email: 'harshithajm70@gmail.com',
     photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    role: 'admin',
+    role: 'owner',
     gender: 'Female',
-    bio: 'Coding through the night ☕ | Living life one task at a time 💜',
+    bio: 'System Owner & Main Administrator 👑 | Full Platform Control',
+    isDemo: false,
     createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     lastLoginAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
@@ -94,7 +97,12 @@ export function AuthProvider({ children }) {
   const getStoredDemoUsers = () => {
     try {
       const stored = localStorage.getItem('sa_demo_users_v2');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Ensure Harshitha (harshithajm70@gmail.com) is present as Owner
+        const ownerExists = parsed.some(u => u.email === MAIN_ADMIN_EMAIL);
+        if (ownerExists) return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
@@ -117,18 +125,21 @@ export function AuthProvider({ children }) {
           const snap = await getDoc(userRef);
 
           let userRole = 'user';
-          if (snap.exists()) {
+          if (user.email === MAIN_ADMIN_EMAIL || user.email?.includes('harshithajm70')) {
+            userRole = 'owner';
+          } else if (snap.exists()) {
             userRole = snap.data().role || 'user';
           } else if (user.email && (user.email.includes('admin') || user.email.includes('harshitha'))) {
-            userRole = 'admin';
+            userRole = 'owner';
           }
 
           const userData = {
             uid: user.uid,
-            displayName: user.displayName || user.email?.split('@')[0] || 'User',
+            displayName: user.displayName || (user.email === MAIN_ADMIN_EMAIL ? 'Harshitha' : user.email?.split('@')[0]) || 'User',
             email: user.email,
-            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=6366f1&color=fff`,
+            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'Harshitha')}&background=6366f1&color=fff`,
             role: userRole,
+            isDemo: false,
             lastLoginAt: new Date().toISOString(),
             lastActiveAt: new Date().toISOString(),
             isOnline: true,
@@ -517,13 +528,21 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const isUserAdmin = 
+    currentUser?.role === 'admin' || 
+    currentUser?.role === 'owner' || 
+    currentUser?.email === MAIN_ADMIN_EMAIL || 
+    currentUser?.email?.includes('harshithajm70') ||
+    currentUser?.isAdmin;
+
   const value = {
     currentUser,
     loading,
     allUsers,
     authError,
     isFirebaseConfigured,
-    isAdmin: currentUser?.role === 'admin' || currentUser?.isAdmin,
+    isAdmin: isUserAdmin,
+    isOwner: currentUser?.role === 'owner' || currentUser?.email === MAIN_ADMIN_EMAIL,
     loginWithGoogle,
     loginWithEmailPassword,
     registerWithEmailPassword,
