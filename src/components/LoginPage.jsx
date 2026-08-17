@@ -644,37 +644,42 @@ export default function LoginPage({ onLoginSuccess }) {
 
             {mode === 'saved_accounts' && rememberedAccounts.length > 0 ? (
               <div className="instagram-accounts-container animate-fadeIn">
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, textAlign: 'center', margin: '10px 0 4px', color: 'var(--text-primary)' }}>
-                  Instagram-Style Account Switcher
-                </h3>
-                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '20px' }}>
-                  Click your account to log in instantly
-                </p>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '6px' }}>⏰</div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 4px' }}>
+                    Welcome Back to Smart Alarm
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Select your saved account to jump straight into your dashboard
+                  </p>
+                </div>
 
-                <div className="saved-accounts-grid">
+                <div className="saved-accounts-grid" style={{ display: 'grid', gridTemplateColumns: rememberedAccounts.length > 1 ? 'repeat(auto-fit, minmax(180px, 1fr))' : '1fr', gap: '14px', width: '100%' }}>
                   {rememberedAccounts.map(acc => (
                     <div key={acc.email} className="instagram-account-card">
                       <button
                         type="button"
                         className="remove-acc-btn"
                         onClick={(e) => { e.stopPropagation(); removeRememberedAccount(acc.email); }}
-                        title="Forget account"
+                        title="Remove saved account"
                       >
                         ✕
                       </button>
 
-                      <img 
-                        src={acc.photoURL} 
-                        alt={acc.displayName} 
-                        className="acc-avatar-img"
-                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.displayName)}&background=6366f1&color=fff`; }}
-                      />
+                      <div className="avatar-ring">
+                        <img 
+                          src={acc.photoURL} 
+                          alt={acc.displayName} 
+                          className="acc-avatar-img"
+                          onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.displayName)}&background=6366f1&color=fff`; }}
+                        />
+                      </div>
 
                       <h4 className="acc-name">{acc.displayName}</h4>
                       <span className="acc-email">{acc.email}</span>
 
-                      {acc.role === 'owner' ? (
-                        <span className="owner-badge">👑 Main Admin</span>
+                      {acc.role === 'owner' || acc.email.toLowerCase() === 'harshithajm70@gmail.com' ? (
+                        <span className="owner-badge">👑 Main Admin & Owner</span>
                       ) : (
                         <span className="user-badge">👤 User Account</span>
                       )}
@@ -683,6 +688,7 @@ export default function LoginPage({ onLoginSuccess }) {
                         type="button" 
                         className="btn btn-primary btn-sm btn-continue-acc"
                         onClick={() => switchDemoUser(acc.uid || acc.email)}
+                        style={{ marginTop: '8px' }}
                       >
                         Continue as {acc.displayName.split(' ')[0]} →
                       </button>
@@ -690,7 +696,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', marginTop: '24px', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '24px', justifyContent: 'center' }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => setMode('signin')}>
                     🔑 Log Into Another Account
                   </button>
@@ -760,6 +766,28 @@ export default function LoginPage({ onLoginSuccess }) {
                     <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
                       {loading ? 'Authenticating...' : 'Sign In with Username'}
                     </button>
+
+                    <div style={{ marginTop: '8px', paddingTop: '10px', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>QUICK INSTANT LOG IN:</span>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-xs"
+                          onClick={() => switchDemoUser('owner-admin-harshitha')}
+                          style={{ fontSize: '0.78rem', color: 'var(--color-primary)', fontWeight: 800 }}
+                        >
+                          👑 Log In as Harshitha (Main Admin)
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-xs"
+                          onClick={() => switchDemoUser('demo-user-2')}
+                          style={{ fontSize: '0.78rem' }}
+                        >
+                          👤 Log In as Alex
+                        </button>
+                      </div>
+                    </div>
                   </form>
                 ) : (
                   <form onSubmit={handleSignUpSubmit} className="auth-form">
