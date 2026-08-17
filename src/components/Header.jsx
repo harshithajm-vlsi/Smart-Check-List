@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { requestNotificationPermission } from '../utils/notifications';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header({ activeSection, setActiveSection, theme, setTheme, onOpenAuthModal }) {
   const [now, setNow] = useState(new Date());
@@ -120,17 +121,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
           )}
         </div>
 
-        <button
-          className="theme-toggle"
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          aria-label="Toggle theme"
-          title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'}
-        >
-          <div className={`toggle-track ${isDark ? 'active' : ''}`}>
-            <span className="toggle-icon">{isDark ? '🌙' : '☀️'}</span>
-            <div className="toggle-thumb" />
-          </div>
-        </button>
+        <ThemeToggle theme={theme} setTheme={setTheme} />
       </div>
 
       <style>{`

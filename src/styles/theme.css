@@ -1,9 +1,9 @@
 /* ============================================================
    SMART ALARM — DESIGN SYSTEM (theme.css)
-   CSS Variables for Light / Dark themes + glassmorphism
+   CSS Variables for Light / Dark Blue / Black (AMOLED) Themes
    ============================================================ */
 
-/* ── Light Theme (default) ──────────────────────────────── */
+/* ── 1. Light Theme (Default) ──────────────────────────────── */
 :root,
 [data-theme="light"] {
   /* Brand */
@@ -65,7 +65,8 @@
   --sidebar-width-mobile:  0px;
 }
 
-/* ── Dark Theme ─────────────────────────────────────────── */
+/* ── 2. Dark Blue Theme (Deep Midnight Navy) ──────────────── */
+[data-theme="dark-blue"],
 [data-theme="dark"] {
   /* Brand */
   --color-primary:       #3EADA0;
@@ -73,27 +74,37 @@
   --color-primary-dark:  #2E8B7D;
   --color-primary-rgb:   62, 173, 160;
 
-  /* Backgrounds - Deep Midnight Dark */
-  --bg-app:              #0B0F19;
-  --bg-surface:          #161F30;
-  --bg-surface-2:        #1E293B;
-  --bg-sidebar:          #0F172A;
-  --bg-header:           rgba(15, 23, 42, 0.90);
-  --bg-glass:            rgba(255, 255, 255, 0.05);
-  --bg-glass-hover:      rgba(255, 255, 255, 0.09);
+  --color-accent:        #F59E0B;
+  --color-danger:        #EF4444;
+  --color-success:       #10B981;
+  --color-warning:       #F59E0B;
+  --color-info:          #3B82F6;
+
+  --color-high:          #EF4444;
+  --color-medium:        #F59E0B;
+  --color-low:           #10B981;
+
+  /* Backgrounds - Deep Midnight Navy Blue */
+  --bg-app:              #0B132B;
+  --bg-surface:          #1C2541;
+  --bg-surface-2:        #233055;
+  --bg-sidebar:          #0B132B;
+  --bg-header:           rgba(11, 19, 43, 0.92);
+  --bg-glass:            rgba(28, 37, 65, 0.7);
+  --bg-glass-hover:      rgba(28, 37, 65, 0.85);
   --bg-overlay:          rgba(0, 0, 0, 0.75);
-  --bg-input:            rgba(255, 255, 255, 0.07);
+  --bg-input:            rgba(255, 255, 255, 0.08);
 
   /* Text - Crisp White & Muted Slate */
-  --text-primary:        #F8FAFC;
-  --text-secondary:      #94A3B8;
-  --text-muted:          #64748B;
-  --text-inverse:        #0F172A;
+  --text-primary:        #F1F5F9;
+  --text-secondary:      #CBD5E1;
+  --text-muted:          #718096;
+  --text-inverse:        #0B132B;
   --text-on-primary:     #FFFFFF;
 
   /* Border */
-  --border-color:        rgba(255, 255, 255, 0.08);
-  --border-color-strong: rgba(255, 255, 255, 0.15);
+  --border-color:        rgba(255, 255, 255, 0.1);
+  --border-color-strong: rgba(255, 255, 255, 0.2);
   --border-focus:        rgba(62, 173, 160, 0.5);
 
   /* Shadow */
@@ -107,4 +118,58 @@
   /* Glassmorphism */
   --glass-blur:   blur(16px);
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── 3. Pitch Black Theme (AMOLED Pure Black) ─────────────── */
+[data-theme="black"] {
+  /* Brand */
+  --color-primary:       #10B981;
+  --color-primary-light: #34D399;
+  --color-primary-dark:  #059669;
+  --color-primary-rgb:   16, 185, 129;
+
+  --color-accent:        #F59E0B;
+  --color-danger:        #EF4444;
+  --color-success:       #10B981;
+  --color-warning:       #F59E0B;
+  --color-info:          #3B82F6;
+
+  --color-high:          #EF4444;
+  --color-medium:        #F59E0B;
+  --color-low:           #10B981;
+
+  /* Backgrounds - Pure Pitch Black */
+  --bg-app:              #000000;
+  --bg-surface:          #0D0D0D;
+  --bg-surface-2:        #171717;
+  --bg-sidebar:          #000000;
+  --bg-header:           rgba(0, 0, 0, 0.95);
+  --bg-glass:            rgba(255, 255, 255, 0.03);
+  --bg-glass-hover:      rgba(255, 255, 255, 0.06);
+  --bg-overlay:          rgba(0, 0, 0, 0.88);
+  --bg-input:            #171717;
+
+  /* Text - High Contrast White & Neutral Grey */
+  --text-primary:        #FFFFFF;
+  --text-secondary:      #A3A3A3;
+  --text-muted:          #737373;
+  --text-inverse:        #000000;
+  --text-on-primary:     #FFFFFF;
+
+  /* Border */
+  --border-color:        #262626;
+  --border-color-strong: #404040;
+  --border-focus:        rgba(16, 185, 129, 0.5);
+
+  /* Shadow */
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.5);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.6);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.7);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.8);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.9);
+  --shadow-glow: 0 0 30px rgba(16,185,129,0.3);
+
+  /* Glassmorphism */
+  --glass-blur:   blur(16px);
+  --glass-border: 1px solid #262626;
 }

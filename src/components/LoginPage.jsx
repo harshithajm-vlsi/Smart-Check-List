@@ -455,23 +455,55 @@ export default function LoginPage({ onLoginSuccess }) {
                 <div className="settings-tab-panel animate-fadeIn">
                   <div className="panel-header">
                     <h2>💬 Chats & Appearance</h2>
-                    <p>Customize system theme, colors, and layout aesthetics.</p>
+                    <p>Select your preferred theme palette for Smart Alarm.</p>
                   </div>
-                  <div className="setting-card-item">
-                    <div className="setting-info">
-                      <h4>Interface Theme</h4>
-                      <p>Toggle dark mode or light glassmorphic styling.</p>
+                  <div className="form-group">
+                    <label className="form-label">Interface Theme Mode</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+                      {[
+                        { id: 'light', title: 'Light Mode', sub: 'Crisp bright white', icon: '☀️', bg: '#F4F7FA', color: '#0F172A' },
+                        { id: 'dark-blue', title: 'Dark Blue Mode', sub: 'Deep midnight navy', icon: '🌌', bg: '#0B132B', color: '#F1F5F9' },
+                        { id: 'black', title: 'Pitch Black Mode', sub: 'AMOLED pure black', icon: '🖤', bg: '#000000', color: '#FFFFFF' }
+                      ].map(t => {
+                        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                        const isSelected = currentTheme === t.id || (t.id === 'dark-blue' && currentTheme === 'dark');
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => {
+                              document.documentElement.setAttribute('data-theme', t.id);
+                              localStorage.setItem('sa_theme', t.id);
+                              // Force re-render of components listening to state
+                              window.dispatchEvent(new Event('storage'));
+                            }}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '8px',
+                              padding: '16px 14px',
+                              borderRadius: '14px',
+                              border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--border-color)',
+                              background: t.bg,
+                              color: t.color,
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              transition: 'all 0.2s ease',
+                              boxShadow: isSelected ? 'var(--shadow-md)' : 'none'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '1.4rem' }}>{t.icon}</span>
+                              {isSelected && <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: '1rem' }}>✓</span>}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 800, fontSize: '0.92rem' }}>{t.title}</div>
+                              <div style={{ fontSize: '0.74rem', opacity: 0.7 }}>{t.sub}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => {
-                        const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                        document.documentElement.setAttribute('data-theme', nextTheme);
-                        localStorage.setItem('sa_theme', nextTheme);
-                      }}
-                    >
-                      🌗 Toggle Theme
-                    </button>
                   </div>
                 </div>
               )}
