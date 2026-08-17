@@ -8,6 +8,7 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   updateProfile
 } from '../config/firebase';
 import { 
@@ -399,6 +400,33 @@ export function AuthProvider({ children }) {
     return true;
   };
 
+  // Reset Password email link sender
+  const resetPassword = async (emailAddress) => {
+    setAuthError(null);
+    if (!emailAddress) {
+      const msg = 'Please enter your email address to reset password.';
+      setAuthError(msg);
+      throw new Error(msg);
+    }
+    const cleanEmail = emailAddress.trim().toLowerCase();
+
+    if (isFirebaseConfigured && auth) {
+      try {
+        await sendPasswordResetEmail(auth, cleanEmail);
+        return true;
+      } catch (err) {
+        console.error('Password reset error:', err);
+        const msg = err.code === 'auth/user-not-found'
+          ? `No registered account found for email "${cleanEmail}".`
+          : err.message || 'Failed to send password reset email.';
+        setAuthError(msg);
+        throw new Error(msg);
+      }
+    } else {
+      return true;
+    }
+  };
+
   const value = {
     currentUser,
     loading,
@@ -411,6 +439,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     loginWithEmailPassword,
     registerWithEmailPassword,
+    resetPassword,
     updateUserProfile,
     logoutUser,
     deleteUserAccount

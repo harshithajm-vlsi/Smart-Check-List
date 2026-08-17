@@ -7,6 +7,7 @@ export default function LoginPage({ onLoginSuccess }) {
     loginWithGoogle, 
     loginWithEmailPassword, 
     registerWithEmailPassword, 
+    resetPassword,
     updateUserProfile,
     logoutUser,
     authError 
@@ -78,6 +79,26 @@ export default function LoginPage({ onLoginSuccess }) {
       if (onLoginSuccess) onLoginSuccess();
     } catch (err) {
       setErrorMsg(err.message || 'Google sign in failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    const targetEmail = loginIdentifier || (currentUser?.email || '');
+    if (!targetEmail || !targetEmail.trim()) {
+      setErrorMsg('Please enter your registered email address in the field above to reset your password.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await resetPassword(targetEmail.trim());
+      setSuccessMsg(`📧 Password reset email sent to "${targetEmail.trim()}"! Please check your inbox or spam folder.`);
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to send password reset email.');
     } finally {
       setLoading(false);
     }
@@ -391,7 +412,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   </div>
                   <div className="account-details-box">
                     <div className="acc-row">
-                      <span className="acc-label">Google Account Email</span>
+                      <span className="acc-label">Account Email</span>
                       <span className="acc-val">{currentUser.email}</span>
                     </div>
                     <div className="acc-row">
@@ -404,6 +425,30 @@ export default function LoginPage({ onLoginSuccess }) {
                         {currentUser.role === 'owner' || currentUser.email === 'harshithajm70@gmail.com' ? '👑 Main Admin & System Owner (Full Access)' : currentUser.isAdmin ? '👑 Administrator' : '👤 Standard User'}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="setting-card-item" style={{ marginTop: '14px' }}>
+                    <div className="setting-info">
+                      <h4>🔑 Account Password Reset</h4>
+                      <p>Send a secure password reset link to your registered email address ({currentUser.email}).</p>
+                    </div>
+                    <button 
+                      className="btn btn-secondary btn-sm"
+                      disabled={loading}
+                      onClick={async () => {
+                        try {
+                          setLoading(true);
+                          await resetPassword(currentUser.email);
+                          alert(`📧 Password reset email sent to "${currentUser.email}"!\n\nPlease check your inbox or spam folder.`);
+                        } catch (e) {
+                          alert(e.message || 'Failed to send password reset email.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                    >
+                      📧 Send Reset Link
+                    </button>
                   </div>
                 </div>
               )}
@@ -662,6 +707,16 @@ export default function LoginPage({ onLoginSuccess }) {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? '👁️' : '🙈'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-ghost btn-xs"
+                      onClick={handleForgotPassword}
+                      style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.8rem', padding: '2px 4px' }}
+                    >
+                      🔑 Forgot Password? / Reset Link
                     </button>
                   </div>
                 </div>
