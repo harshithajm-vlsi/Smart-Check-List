@@ -6,9 +6,8 @@ export default function LoginModal({ isOpen, onClose }) {
   const { 
     currentUser, 
     loginWithGoogle, 
+    loginWithEmailPassword,
     logoutUser, 
-    switchDemoUser, 
-    addSimulatedGoogleUser, 
     allUsers, 
     isFirebaseConfigured,
     authError 
@@ -151,7 +150,7 @@ export default function LoginModal({ isOpen, onClose }) {
                 <button
                   key={u.uid}
                   className={`demo-user-chip ${currentUser?.uid === u.uid ? 'active' : ''}`}
-                  onClick={() => { switchDemoUser(u.uid); onClose(); }}
+                  onClick={() => { loginWithEmailPassword(u.email, 'password'); onClose(); }}
                 >
                   <img src={u.photoURL} alt={u.displayName} className="chip-avatar" />
                   <span className="chip-name">{u.displayName}</span>

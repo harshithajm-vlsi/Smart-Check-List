@@ -10,9 +10,7 @@ export default function AdminPortal() {
     grantSelfAdmin,
     toggleUserRole, 
     deleteUserAccount,
-    isFirebaseConfigured,
-    switchDemoUser,
-    addSimulatedGoogleUser 
+    isFirebaseConfigured
   } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState('');

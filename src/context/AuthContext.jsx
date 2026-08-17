@@ -19,8 +19,6 @@ import {
   onSnapshot, 
   collection, 
   query, 
-  where,
-  getDocs,
   orderBy 
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -67,52 +65,21 @@ export function AuthProvider({ children }) {
   const [allUsers, setAllUsers] = useState([]);
   const [authError, setAuthError] = useState(null);
 
-  // Instagram-style remembered accounts list stored on device
-  const [rememberedAccounts, setRememberedAccounts] = useState(() => {
+  // Clear legacy saved accounts caches
+  useEffect(() => {
     try {
-      const saved = localStorage.getItem('sa_remembered_accounts_v1');
-      if (saved) return JSON.parse(saved);
+      localStorage.removeItem('sa_remembered_accounts_v1');
+      localStorage.removeItem('sa_active_user_id');
     } catch (e) {}
-    return [];
-  });
+  }, []);
 
-  const saveRememberedAccount = (userObj) => {
-    if (!userObj || !userObj.email) return;
-    setRememberedAccounts(prev => {
-      const isOwner = userObj.email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
-      const cleanName = isOwner ? 'Harshitha' : (userObj.displayName || userObj.email.split('@')[0]);
-      const cleanRole = isOwner ? 'owner' : (userObj.role || 'user');
-
-      const filtered = prev.filter(u => u.email.toLowerCase() !== userObj.email.toLowerCase());
-      const updated = [{
-        uid: userObj.uid,
-        displayName: cleanName,
-        email: userObj.email,
-        photoURL: userObj.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=6366f1&color=fff`,
-        role: cleanRole,
-        lastActiveAt: new Date().toISOString()
-      }, ...filtered];
-
-      localStorage.setItem('sa_remembered_accounts_v1', JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const removeRememberedAccount = (emailTarget) => {
-    setRememberedAccounts(prev => {
-      const next = prev.filter(u => u.email.toLowerCase() !== emailTarget.toLowerCase());
-      localStorage.setItem('sa_remembered_accounts_v1', JSON.stringify(next));
-      return next;
-    });
-  };
-
-  // Demo users manager
+  // Sync users list for admin management
   const getStoredDemoUsers = () => {
     try {
       const stored = localStorage.getItem('sa_demo_users_v2');
       if (stored) {
         const parsed = JSON.parse(stored);
-        const ownerExists = parsed.some(u => u.email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase());
+        const ownerExists = parsed.some(u => u.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase());
         if (ownerExists) return parsed;
       }
     } catch (e) {}
@@ -121,7 +88,6 @@ export function AuthProvider({ children }) {
   };
 
   const updateDemoUsersList = (users) => {
-    // Deduplicate by email
     const uniqueMap = new Map();
     users.forEach(u => {
       if (u.email) {
@@ -137,7 +103,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('sa_demo_users_v2', JSON.stringify(uniqueList));
   };
 
-  // Auth State Observer
+  // Firebase Auth Observer (Source of Truth)
   useEffect(() => {
     if (isFirebaseConfigured && auth) {
       const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -146,7 +112,7 @@ export function AuthProvider({ children }) {
           const userRef = doc(db, 'users', user.uid);
           const snap = await getDoc(userRef);
 
-          let userRole = isMainAdmin ? 'owner' : (snap.exists() ? snap.data().role : 'user');
+          let userRole = isMainAdmin ? 'owner' : (snap.exists() ? snap.data().role || 'user' : 'user');
           let displayName = isMainAdmin ? 'Harshitha' : (user.displayName || user.email?.split('@')[0] || 'User');
 
           const userData = {
@@ -164,12 +130,13 @@ export function AuthProvider({ children }) {
 
           if (!snap.exists()) {
             userData.createdAt = new Date().toISOString();
+          } else if (snap.data().createdAt) {
+            userData.createdAt = snap.data().createdAt;
           }
 
           await setDoc(userRef, userData, { merge: true });
           const finalUser = { ...userData, isAdmin: userRole === 'admin' || userRole === 'owner' };
           setCurrentUser(finalUser);
-          saveRememberedAccount(finalUser);
         } else {
           setCurrentUser(null);
         }
@@ -191,8 +158,6 @@ export function AuthProvider({ children }) {
     } else {
       const demoUsers = getStoredDemoUsers();
       updateDemoUsersList(demoUsers);
-
-      // Require user to sign in or register first on initial visit
       setCurrentUser(null);
       setLoading(false);
     }
@@ -240,7 +205,7 @@ export function AuthProvider({ children }) {
 
       const users = getStoredDemoUsers();
       updateDemoUsersList([newUser, ...users.filter(u => u.email.toLowerCase() !== email.toLowerCase())]);
-      switchDemoUser(newUser.uid);
+      setCurrentUser({ ...newUser, isAdmin: newUser.role === 'admin' || newUser.role === 'owner' });
       return newUser;
     }
   };
@@ -289,8 +254,9 @@ export function AuthProvider({ children }) {
         updateDemoUsersList([match, ...users.filter(u => u.email.toLowerCase() !== email.toLowerCase())]);
       }
 
-      switchDemoUser(match.uid);
-      return match;
+      const activeUser = { ...match, isOnline: true, isAdmin: match.role === 'admin' || match.role === 'owner' };
+      setCurrentUser(activeUser);
+      return activeUser;
     }
   };
 
@@ -303,7 +269,6 @@ export function AuthProvider({ children }) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if email already exists in local list
     const existing = allUsers.find(u => u.email.toLowerCase() === cleanEmail);
     if (existing) {
       const msg = `An account with email "${cleanEmail}" already exists. Please log in instead.`;
@@ -361,31 +326,12 @@ export function AuthProvider({ children }) {
 
       const users = getStoredDemoUsers();
       updateDemoUsersList([newUser, ...users.filter(u => u.email.toLowerCase() !== cleanEmail)]);
-      switchDemoUser(newUid);
+      setCurrentUser({ ...newUser, isAdmin: newUser.role === 'admin' || newUser.role === 'owner' });
       return newUser;
     }
   };
 
-  // Switch demo or remembered account
-  const switchDemoUser = (userId) => {
-    const users = getStoredDemoUsers();
-    const target = users.find(u => u.uid === userId || u.email.toLowerCase() === userId.toLowerCase());
-    if (target) {
-      localStorage.setItem('sa_active_user_id', target.uid);
-      const updated = {
-        ...target,
-        isOnline: true,
-        lastLoginAt: new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-        isAdmin: target.role === 'admin' || target.role === 'owner'
-      };
-      setCurrentUser(updated);
-      saveRememberedAccount(updated);
-      updateDemoUsersList(users.map(u => u.uid === target.uid ? updated : u));
-    }
-  };
-
-  // Update Profile (Support Base64 image file & name)
+  // Update Profile
   const updateUserProfile = async ({ displayName, photoURL, bio, gender }) => {
     if (!currentUser) return;
     const isMainAdmin = currentUser.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
@@ -399,7 +345,6 @@ export function AuthProvider({ children }) {
     };
 
     setCurrentUser(updatedUser);
-    saveRememberedAccount(updatedUser);
 
     if (isFirebaseConfigured && db && auth?.currentUser) {
       try {
@@ -423,13 +368,12 @@ export function AuthProvider({ children }) {
   const logoutUser = async () => {
     if (isFirebaseConfigured && auth) {
       await signOut(auth);
-    } else {
-      if (currentUser) {
-        const users = getStoredDemoUsers();
-        updateDemoUsersList(users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u));
-      }
-      setCurrentUser(null);
     }
+    if (currentUser) {
+      const users = getStoredDemoUsers();
+      updateDemoUsersList(users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u));
+    }
+    setCurrentUser(null);
   };
 
   const isUserAdmin = 
@@ -451,20 +395,25 @@ export function AuthProvider({ children }) {
       return false;
     }
 
-    try {
-      if (isFirebaseConfigured && db) {
-        await deleteDoc(doc(db, 'users', targetUid));
-      }
-
-      const nextList = allUsers.filter(u => u.uid !== targetUid);
-      updateDemoUsersList(nextList);
-      if (targetUser?.email) removeRememberedAccount(targetUser.email);
-      return true;
-    } catch (e) {
-      console.error('Error deleting user account:', e);
-      alert('Failed to delete user: ' + e.message);
+    if (!window.confirm(`Are you sure you want to delete user "${targetUser?.displayName || targetUid}"?`)) {
       return false;
     }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await deleteDoc(doc(db, 'users', targetUid));
+      } catch (err) {
+        console.error('Failed to delete Firestore user:', err);
+      }
+    }
+
+    const users = getStoredDemoUsers().filter(u => u.uid !== targetUid);
+    updateDemoUsersList(users);
+
+    if (currentUser?.uid === targetUid) {
+      logoutUser();
+    }
+    return true;
   };
 
   const value = {
@@ -472,9 +421,7 @@ export function AuthProvider({ children }) {
     loading,
     allUsers,
     authError,
-    rememberedAccounts,
-    saveRememberedAccount,
-    removeRememberedAccount,
+    rememberedAccounts: [],
     isFirebaseConfigured,
     isAdmin: isUserAdmin,
     isOwner: currentUser?.role === 'owner' || currentUser?.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase(),
@@ -483,7 +430,6 @@ export function AuthProvider({ children }) {
     registerWithEmailPassword,
     updateUserProfile,
     logoutUser,
-    switchDemoUser,
     deleteUserAccount
   };
 

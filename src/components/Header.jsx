@@ -7,7 +7,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
   const [now, setNow] = useState(new Date());
   const [notifStatus, setNotifStatus] = useState(Notification.permission);
   const [showDropdown, setShowDropdown] = useState(false);
-  const { currentUser, logoutUser, rememberedAccounts, switchDemoUser } = useAuth();
+  const { currentUser, logoutUser } = useAuth();
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -136,38 +136,6 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
                 ⚙️ Edit Profile & Account Settings
               </button>
 
-              {rememberedAccounts && rememberedAccounts.length > 1 && (
-                <>
-                  <div className="dropdown-divider" />
-                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '2px 4px' }}>
-                    Switch Account
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
-                    {rememberedAccounts
-                      .filter(acc => acc.email !== currentUser.email)
-                      .map(acc => (
-                        <button
-                          key={acc.email}
-                          className="dropdown-item-btn"
-                          onClick={() => {
-                            setShowDropdown(false);
-                            switchDemoUser(acc.uid || acc.email);
-                          }}
-                          style={{ justifyContent: 'flex-start', gap: '8px', padding: '6px 8px' }}
-                        >
-                          <img 
-                            src={acc.photoURL} 
-                            alt={acc.displayName} 
-                            style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }}
-                            onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.displayName)}&background=6366f1&color=fff`; }}
-                          />
-                          <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>{acc.displayName}</span>
-                        </button>
-                      ))}
-                  </div>
-                </>
-              )}
-
               <button 
                 className="dropdown-item-btn red-btn"
                 onClick={() => {
@@ -175,7 +143,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
                   logoutUser();
                 }}
               >
-                ➕ Switch / Sign Out Account
+                🚪 Sign Out
               </button>
             </div>
           )}
