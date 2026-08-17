@@ -163,50 +163,28 @@ export function AuthProvider({ children }) {
     }
   }, [isFirebaseConfigured]);
 
-  // Google Sign-In
+  // Real Google Authentication via Firebase OAuth
   const loginWithGoogle = async () => {
     setAuthError(null);
-    if (isFirebaseConfigured && auth && googleProvider) {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        return result.user;
-      } catch (error) {
-        console.error('Google Sign-In Error:', error);
-        let msg = error.message || 'Google Sign-In failed.';
-        setAuthError(msg);
-        throw new Error(msg);
+    if (!isFirebaseConfigured || !auth || !googleProvider) {
+      const msg = 'Firebase Authentication is not configured. Please enter your Firebase config keys to enable Google Sign-In.';
+      setAuthError(msg);
+      throw new Error(msg);
+    }
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
+    } catch (error) {
+      console.error('Google Sign-In Error:', error);
+      let msg = error.message || 'Google Sign-In failed.';
+      if (error.code === 'auth/popup-closed-by-user') {
+        msg = 'Google Sign-In popup was closed before completing authentication.';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        msg = 'Sign-In request was cancelled.';
       }
-    } else {
-      const name = window.prompt("Google Account Name:", "Alex Rivers");
-      if (!name) return null;
-      const email = window.prompt("Google Email Address:", "user@example.com");
-      if (!email) return null;
-      
-      const isMainAdmin = email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
-      const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-      const newUser = existingUser ? {
-        ...existingUser,
-        lastLoginAt: new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-        isOnline: true
-      } : {
-        uid: isMainAdmin ? 'owner-admin-harshitha' : `google-user-${Date.now()}`,
-        displayName: isMainAdmin ? 'Harshitha' : name,
-        email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(isMainAdmin ? 'Harshitha' : name)}&background=4285F4&color=fff`,
-        role: isMainAdmin ? 'owner' : 'user',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-        isOnline: true,
-        deviceInfo: 'Google Sign-In'
-      };
-
-      const users = getStoredDemoUsers();
-      updateDemoUsersList([newUser, ...users.filter(u => u.email.toLowerCase() !== email.toLowerCase())]);
-      setCurrentUser({ ...newUser, isAdmin: newUser.role === 'admin' || newUser.role === 'owner' });
-      return newUser;
+      setAuthError(msg);
+      throw new Error(msg);
     }
   };
 

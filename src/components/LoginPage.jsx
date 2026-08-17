@@ -156,13 +156,7 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   };
 
-  // Change avatar photo URL via prompt
-  const handleChangePhotoPrompt = () => {
-    const url = window.prompt('Enter image URL for profile photo:', photoInput || currentUser?.photoURL);
-    if (url && url.trim()) {
-      setPhotoInput(url.trim());
-    }
-  };
+
 
   // Menu items list matching reference screenshot
   const SETTINGS_MENU_ITEMS = [
@@ -280,14 +274,6 @@ export default function LoginPage({ onLoginSuccess }) {
                           className="avatar-preview-img"
                           onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput || 'User')}&background=6366f1&color=fff`; }}
                         />
-                        <button 
-                          type="button"
-                          className="avatar-change-btn"
-                          onClick={handleChangePhotoPrompt}
-                          title="Change picture URL"
-                        >
-                          📷
-                        </button>
                       </div>
                       <div className="avatar-info">
                         <label className="form-label">Profile Image (Upload Local File)</label>
@@ -298,7 +284,7 @@ export default function LoginPage({ onLoginSuccess }) {
                           className="form-input"
                           style={{ padding: '6px' }}
                         />
-                        <span className="form-hint">📁 Select any photo from your device storage (.jpg, .png, .webp). No URL needed!</span>
+                        <span className="form-hint">📁 Select any photo from your device storage (.jpg, .png, .webp).</span>
                       </div>
                     </div>
 
