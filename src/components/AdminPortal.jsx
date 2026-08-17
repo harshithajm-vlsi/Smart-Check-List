@@ -62,8 +62,22 @@ export default function AdminPortal() {
     );
   }
 
+  // Deduplicate users strictly by email
+  const uniqueUsersMap = new Map();
+  allUsers.forEach(u => {
+    if (u.email) {
+      const clean = u.email.toLowerCase();
+      if (clean === 'harshithajm70@gmail.com') {
+        uniqueUsersMap.set(clean, { ...u, displayName: 'Harshitha', role: 'owner' });
+      } else if (!uniqueUsersMap.has(clean)) {
+        uniqueUsersMap.set(clean, u);
+      }
+    }
+  });
+  const deduplicatedUsers = Array.from(uniqueUsersMap.values());
+
   // Filter users
-  const filteredUsers = allUsers.filter(user => {
+  const filteredUsers = deduplicatedUsers.filter(user => {
     const matchesSearch = 
       user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase());

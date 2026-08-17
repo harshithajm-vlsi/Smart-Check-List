@@ -15,9 +15,12 @@ import {
   setDoc, 
   getDoc, 
   updateDoc, 
+  deleteDoc,
   onSnapshot, 
   collection, 
   query, 
+  where,
+  getDocs,
   orderBy 
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -26,7 +29,6 @@ const AuthContext = createContext();
 
 const MAIN_ADMIN_EMAIL = 'harshithajm70@gmail.com';
 
-// Default demo users list for multi-user simulation
 const INITIAL_DEMO_USERS = [
   {
     uid: 'owner-admin-harshitha',
@@ -56,34 +58,6 @@ const INITIAL_DEMO_USERS = [
     lastActiveAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     isOnline: true,
     deviceInfo: 'Safari on macOS',
-  },
-  {
-    uid: 'demo-user-3',
-    displayName: 'Sarah Chen',
-    email: 'sarah.chen@tech.org',
-    photoURL: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-    role: 'user',
-    gender: 'Female',
-    bio: 'Focus on progress, not perfection ✨',
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    lastLoginAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    lastActiveAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-    isOnline: false,
-    deviceInfo: 'Firefox on Linux',
-  },
-  {
-    uid: 'demo-user-4',
-    displayName: 'David Miller',
-    email: 'dmiller99@yahoo.com',
-    photoURL: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-    role: 'user',
-    gender: 'Male',
-    bio: 'Building awesome apps 📱',
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    lastLoginAt: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-    lastActiveAt: new Date(Date.now() - 11 * 3600 * 1000).toISOString(),
-    isOnline: false,
-    deviceInfo: 'Chrome Mobile on Android',
   }
 ];
 
@@ -93,51 +67,93 @@ export function AuthProvider({ children }) {
   const [allUsers, setAllUsers] = useState([]);
   const [authError, setAuthError] = useState(null);
 
-  // Initialize demo users in localStorage if needed
+  // Instagram-style remembered accounts list stored on device
+  const [rememberedAccounts, setRememberedAccounts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sa_remembered_accounts_v1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [INITIAL_DEMO_USERS[0]];
+  });
+
+  const saveRememberedAccount = (userObj) => {
+    if (!userObj || !userObj.email) return;
+    setRememberedAccounts(prev => {
+      const isOwner = userObj.email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
+      const cleanName = isOwner ? 'Harshitha' : (userObj.displayName || userObj.email.split('@')[0]);
+      const cleanRole = isOwner ? 'owner' : (userObj.role || 'user');
+
+      const filtered = prev.filter(u => u.email.toLowerCase() !== userObj.email.toLowerCase());
+      const updated = [{
+        uid: userObj.uid,
+        displayName: cleanName,
+        email: userObj.email,
+        photoURL: userObj.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=6366f1&color=fff`,
+        role: cleanRole,
+        lastActiveAt: new Date().toISOString()
+      }, ...filtered];
+
+      localStorage.setItem('sa_remembered_accounts_v1', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeRememberedAccount = (emailTarget) => {
+    setRememberedAccounts(prev => {
+      const next = prev.filter(u => u.email.toLowerCase() !== emailTarget.toLowerCase());
+      localStorage.setItem('sa_remembered_accounts_v1', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  // Demo users manager
   const getStoredDemoUsers = () => {
     try {
       const stored = localStorage.getItem('sa_demo_users_v2');
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Ensure Harshitha (harshithajm70@gmail.com) is present as Owner
-        const ownerExists = parsed.some(u => u.email === MAIN_ADMIN_EMAIL);
+        const ownerExists = parsed.some(u => u.email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase());
         if (ownerExists) return parsed;
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
     localStorage.setItem('sa_demo_users_v2', JSON.stringify(INITIAL_DEMO_USERS));
     return INITIAL_DEMO_USERS;
   };
 
   const updateDemoUsersList = (users) => {
-    setAllUsers(users);
-    localStorage.setItem('sa_demo_users_v2', JSON.stringify(users));
+    // Deduplicate by email
+    const uniqueMap = new Map();
+    users.forEach(u => {
+      if (u.email) {
+        if (u.email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase()) {
+          uniqueMap.set(MAIN_ADMIN_EMAIL.toLowerCase(), { ...u, displayName: 'Harshitha', role: 'owner' });
+        } else if (!uniqueMap.has(u.email.toLowerCase())) {
+          uniqueMap.set(u.email.toLowerCase(), u);
+        }
+      }
+    });
+    const uniqueList = Array.from(uniqueMap.values());
+    setAllUsers(uniqueList);
+    localStorage.setItem('sa_demo_users_v2', JSON.stringify(uniqueList));
   };
 
-  // Listen to Auth State
+  // Auth State Observer
   useEffect(() => {
     if (isFirebaseConfigured && auth) {
       const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
         if (user) {
-          // Sync user to Firestore
+          const isMainAdmin = user.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
           const userRef = doc(db, 'users', user.uid);
           const snap = await getDoc(userRef);
 
-          let userRole = 'user';
-          if (user.email === MAIN_ADMIN_EMAIL || user.email?.includes('harshithajm70')) {
-            userRole = 'owner';
-          } else if (snap.exists()) {
-            userRole = snap.data().role || 'user';
-          } else if (user.email && (user.email.includes('admin') || user.email.includes('harshitha'))) {
-            userRole = 'owner';
-          }
+          let userRole = isMainAdmin ? 'owner' : (snap.exists() ? snap.data().role : 'user');
+          let displayName = isMainAdmin ? 'Harshitha' : (user.displayName || user.email?.split('@')[0] || 'User');
 
           const userData = {
             uid: user.uid,
-            displayName: user.displayName || (user.email === MAIN_ADMIN_EMAIL ? 'Harshitha' : user.email?.split('@')[0]) || 'User',
+            displayName,
             email: user.email,
-            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'Harshitha')}&background=6366f1&color=fff`,
+            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff`,
             role: userRole,
             isDemo: false,
             lastLoginAt: new Date().toISOString(),
@@ -151,18 +167,19 @@ export function AuthProvider({ children }) {
           }
 
           await setDoc(userRef, userData, { merge: true });
-          setCurrentUser({ ...userData, isAdmin: userRole === 'admin' });
+          const finalUser = { ...userData, isAdmin: userRole === 'admin' || userRole === 'owner' };
+          setCurrentUser(finalUser);
+          saveRememberedAccount(finalUser);
         } else {
           setCurrentUser(null);
         }
         setLoading(false);
       });
 
-      // Realtime listener for all users for Admin
       const usersQuery = query(collection(db, 'users'), orderBy('lastActiveAt', 'desc'));
       const unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
         const usersList = snapshot.docs.map(doc => doc.data());
-        setAllUsers(usersList);
+        updateDemoUsersList(usersList);
       }, (err) => {
         console.warn('Firestore users sync notice:', err);
       });
@@ -172,58 +189,26 @@ export function AuthProvider({ children }) {
         unsubscribeUsers();
       };
     } else {
-      // Demo Mode Auth setup
       const demoUsers = getStoredDemoUsers();
-      setAllUsers(demoUsers);
+      updateDemoUsersList(demoUsers);
 
       const activeUserId = localStorage.getItem('sa_active_user_id') || demoUsers[0].uid;
       const foundUser = demoUsers.find(u => u.uid === activeUserId) || demoUsers[0];
 
-      // Update current user's online/active timestamp
       const updatedUser = {
         ...foundUser,
         isOnline: true,
         lastActiveAt: new Date().toISOString(),
-        isAdmin: foundUser.role === 'admin'
+        isAdmin: foundUser.role === 'admin' || foundUser.role === 'owner'
       };
 
       setCurrentUser(updatedUser);
-
-      // Save updated active status to list
-      const updatedUsersList = demoUsers.map(u => u.uid === updatedUser.uid ? updatedUser : u);
-      updateDemoUsersList(updatedUsersList);
-
+      saveRememberedAccount(updatedUser);
       setLoading(false);
     }
   }, [isFirebaseConfigured]);
 
-  // Heartbeat / Active status updater
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const interval = setInterval(async () => {
-      const nowIso = new Date().toISOString();
-      if (isFirebaseConfigured && db && auth?.currentUser) {
-        try {
-          const userRef = doc(db, 'users', auth.currentUser.uid);
-          await updateDoc(userRef, { lastActiveAt: nowIso, isOnline: true });
-        } catch (e) {
-          console.warn('Heartbeat update failed:', e);
-        }
-      } else {
-        // Demo mode heartbeat update
-        setAllUsers(prev => {
-          const next = prev.map(u => u.uid === currentUser.uid ? { ...u, lastActiveAt: nowIso, isOnline: true } : u);
-          localStorage.setItem('sa_demo_users_v2', JSON.stringify(next));
-          return next;
-        });
-      }
-    }, 30000); // every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [currentUser, isFirebaseConfigured]);
-
-  // Google Sign-In Function
+  // Google Sign-In
   const loginWithGoogle = async () => {
     setAuthError(null);
     if (isFirebaseConfigured && auth && googleProvider) {
@@ -233,94 +218,85 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.error('Google Sign-In Error:', error);
         let msg = error.message || 'Google Sign-In failed.';
-        if (error.code === 'auth/unauthorized-domain') {
-          msg = 'Domain not authorized. Please add "localhost" to Authorized Domains in Firebase Console > Auth > Settings.';
-        } else if (error.code === 'auth/operation-not-allowed') {
-          msg = 'Google provider is disabled in Firebase. Please enable Google Sign-In under Firebase Console > Auth > Sign-in method.';
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          msg = 'Google Sign-In popup was closed before completion.';
-        } else if (error.code === 'auth/popup-blocked') {
-          msg = 'Google Sign-In popup was blocked by your browser. Please allow popups for this site.';
-        }
         setAuthError(msg);
         throw new Error(msg);
       }
     } else {
-      // Demo Mode Google login helper
-      const name = window.prompt("Google Account Name:", currentUser?.displayName || "Google User");
+      const name = window.prompt("Google Account Name:", "Harshitha");
       if (!name) return null;
-      const email = window.prompt("Google Email Address:", currentUser?.email || "user@gmail.com");
+      const email = window.prompt("Google Email Address:", MAIN_ADMIN_EMAIL);
       if (!email) return null;
       
-      const newUid = `google-user-${Date.now()}`;
-      const newUser = {
-        uid: newUid,
-        displayName: name,
+      const isMainAdmin = email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
+      const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+      const newUser = existingUser ? {
+        ...existingUser,
+        lastLoginAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        isOnline: true
+      } : {
+        uid: isMainAdmin ? 'owner-admin-harshitha' : `google-user-${Date.now()}`,
+        displayName: isMainAdmin ? 'Harshitha' : name,
         email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4285F4&color=fff`,
-        role: email.includes('admin') ? 'admin' : 'user',
+        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(isMainAdmin ? 'Harshitha' : name)}&background=4285F4&color=fff`,
+        role: isMainAdmin ? 'owner' : 'user',
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         lastActiveAt: new Date().toISOString(),
         isOnline: true,
-        deviceInfo: 'Google Account Sign-In'
+        deviceInfo: 'Google Sign-In'
       };
 
       const users = getStoredDemoUsers();
-      const nextList = [newUser, ...users];
-      updateDemoUsersList(nextList);
-      switchDemoUser(newUid);
+      updateDemoUsersList([newUser, ...users.filter(u => u.email.toLowerCase() !== email.toLowerCase())]);
+      switchDemoUser(newUser.uid);
       return newUser;
     }
   };
 
-  // Username/Email + Password Login
+  // Login with Email & Password
   const loginWithEmailPassword = async (emailOrUsername, password) => {
     setAuthError(null);
     if (!emailOrUsername || !password) {
-      throw new Error('Please enter username/email and password.');
+      throw new Error('Please enter your email and password.');
     }
+
+    const email = emailOrUsername.includes('@') ? emailOrUsername.trim() : `${emailOrUsername.trim()}@gmail.com`;
 
     if (isFirebaseConfigured && auth) {
       try {
-        // Ensure format is email if username passed
-        const email = emailOrUsername.includes('@') ? emailOrUsername : `${emailOrUsername}@smartalarm.app`;
         const res = await signInWithEmailAndPassword(auth, email, password);
         return res.user;
       } catch (err) {
         console.error('Login error:', err);
         const msg = err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' 
-          ? 'Invalid username/email or password.' 
+          ? 'Invalid email or password.' 
           : err.message;
         setAuthError(msg);
         throw new Error(msg);
       }
     } else {
-      // Demo mode lookup or creation
       const users = getStoredDemoUsers();
-      let match = users.find(u => 
-        u.email.toLowerCase() === emailOrUsername.toLowerCase() || 
-        u.displayName.toLowerCase() === emailOrUsername.toLowerCase()
-      );
+      let match = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
       if (!match) {
-        // Auto register in demo mode if credentials provided
-        const newUid = `demo-user-${Date.now()}`;
-        const name = emailOrUsername.split('@')[0];
+        const isMainAdmin = email.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
+        const newUid = isMainAdmin ? 'owner-admin-harshitha' : `demo-user-${Date.now()}`;
+        const name = isMainAdmin ? 'Harshitha' : email.split('@')[0];
         match = {
           uid: newUid,
           displayName: name,
-          email: emailOrUsername.includes('@') ? emailOrUsername : `${emailOrUsername}@gmail.com`,
+          email: email,
           photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`,
-          role: emailOrUsername.includes('admin') ? 'admin' : 'user',
+          role: isMainAdmin ? 'owner' : 'user',
           createdAt: new Date().toISOString(),
           lastLoginAt: new Date().toISOString(),
           lastActiveAt: new Date().toISOString(),
           isOnline: true,
           deviceInfo: 'Web Browser'
         };
-        const nextList = [match, ...users];
-        updateDemoUsersList(nextList);
+        updateDemoUsersList([match, ...users.filter(u => u.email.toLowerCase() !== email.toLowerCase())]);
       }
 
       switchDemoUser(match.uid);
@@ -328,27 +304,38 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Register with Username, Email & Password
-  const registerWithEmailPassword = async (username, email, password) => {
+  // Register with Email & Password (Strict Unique Email Check)
+  const registerWithEmailPassword = async (username, email, password, photoBase64 = null) => {
     setAuthError(null);
     if (!username || !email || !password) {
       throw new Error('Please complete all registration fields.');
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if email already exists in local list
+    const existing = allUsers.find(u => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      const msg = `An account with email "${cleanEmail}" already exists. Please log in instead.`;
+      setAuthError(msg);
+      throw new Error(msg);
+    }
+
     if (isFirebaseConfigured && auth) {
       try {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
+        const res = await createUserWithEmailAndPassword(auth, cleanEmail, password);
         const user = res.user;
-        await updateProfile(user, { displayName: username });
+        const photoURL = photoBase64 || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`;
 
-        // Save to Firestore
-        const userRef = doc(db, 'users', user.uid);
-        const userRole = email.includes('admin') || username.toLowerCase().includes('admin') ? 'admin' : 'user';
+        await updateProfile(user, { displayName: username, photoURL });
+
+        const isMainAdmin = cleanEmail === MAIN_ADMIN_EMAIL.toLowerCase();
+        const userRole = isMainAdmin ? 'owner' : 'user';
         const userData = {
           uid: user.uid,
-          displayName: username,
-          email: email,
-          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`,
+          displayName: isMainAdmin ? 'Harshitha' : username,
+          email: cleanEmail,
+          photoURL,
           role: userRole,
           createdAt: new Date().toISOString(),
           lastLoginAt: new Date().toISOString(),
@@ -356,23 +343,25 @@ export function AuthProvider({ children }) {
           isOnline: true,
           deviceInfo: 'Desktop Browser'
         };
-        await setDoc(userRef, userData);
+        await setDoc(doc(db, 'users', user.uid), userData);
         return user;
       } catch (err) {
         console.error('Register error:', err);
-        const msg = err.code === 'auth/email-already-in-use' ? 'Email address is already registered.' : err.message;
+        const msg = err.code === 'auth/email-already-in-use' 
+          ? `An account with email "${cleanEmail}" is already registered. Please log in.` 
+          : err.message;
         setAuthError(msg);
         throw new Error(msg);
       }
     } else {
-      const users = getStoredDemoUsers();
-      const newUid = `demo-user-${Date.now()}`;
+      const isMainAdmin = cleanEmail === MAIN_ADMIN_EMAIL.toLowerCase();
+      const newUid = isMainAdmin ? 'owner-admin-harshitha' : `demo-user-${Date.now()}`;
       const newUser = {
         uid: newUid,
-        displayName: username,
-        email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`,
-        role: email.includes('admin') || username.toLowerCase().includes('admin') ? 'admin' : 'user',
+        displayName: isMainAdmin ? 'Harshitha' : username,
+        email: cleanEmail,
+        photoURL: photoBase64 || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6366f1&color=fff`,
+        role: isMainAdmin ? 'owner' : 'user',
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         lastActiveAt: new Date().toISOString(),
@@ -380,17 +369,17 @@ export function AuthProvider({ children }) {
         deviceInfo: 'Web Browser'
       };
 
-      const nextList = [newUser, ...users];
-      updateDemoUsersList(nextList);
+      const users = getStoredDemoUsers();
+      updateDemoUsersList([newUser, ...users.filter(u => u.email.toLowerCase() !== cleanEmail)]);
       switchDemoUser(newUid);
       return newUser;
     }
   };
 
-  // Demo Switch Account helper (for quick multi-user testing)
+  // Switch demo or remembered account
   const switchDemoUser = (userId) => {
     const users = getStoredDemoUsers();
-    const target = users.find(u => u.uid === userId);
+    const target = users.find(u => u.uid === userId || u.email.toLowerCase() === userId.toLowerCase());
     if (target) {
       localStorage.setItem('sa_active_user_id', target.uid);
       const updated = {
@@ -398,131 +387,56 @@ export function AuthProvider({ children }) {
         isOnline: true,
         lastLoginAt: new Date().toISOString(),
         lastActiveAt: new Date().toISOString(),
-        isAdmin: target.role === 'admin'
+        isAdmin: target.role === 'admin' || target.role === 'owner'
       };
       setCurrentUser(updated);
-
-      const nextList = users.map(u => u.uid === target.uid ? updated : u);
-      updateDemoUsersList(nextList);
+      saveRememberedAccount(updated);
+      updateDemoUsersList(users.map(u => u.uid === target.uid ? updated : u));
     }
   };
 
-  // Add custom simulated Google User in Demo Mode
-  const addSimulatedGoogleUser = (name, email) => {
-    const users = getStoredDemoUsers();
-    const newUser = {
-      uid: `demo-user-${Date.now()}`,
-      displayName: name || 'Google User',
-      email: email || `user_${Math.floor(Math.random()*1000)}@gmail.com`,
-      photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email)}&background=3b82f6&color=fff`,
-      role: email?.includes('admin') ? 'admin' : 'user',
-      createdAt: new Date().toISOString(),
-      lastLoginAt: new Date().toISOString(),
-      lastActiveAt: new Date().toISOString(),
-      isOnline: true,
-      deviceInfo: 'Chrome Browser'
-    };
-
-    const nextList = [newUser, ...users];
-    updateDemoUsersList(nextList);
-    switchDemoUser(newUser.uid);
-  };
-
-  // Profile Update (Rename display name, photo, bio, gender)
+  // Update Profile (Support Base64 image file & name)
   const updateUserProfile = async ({ displayName, photoURL, bio, gender }) => {
     if (!currentUser) return;
+    const isMainAdmin = currentUser.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase();
+
     const updatedUser = {
       ...currentUser,
-      ...(displayName !== undefined && { displayName }),
+      displayName: isMainAdmin ? 'Harshitha' : (displayName !== undefined ? displayName : currentUser.displayName),
       ...(photoURL !== undefined && { photoURL }),
       ...(bio !== undefined && { bio }),
       ...(gender !== undefined && { gender }),
     };
 
     setCurrentUser(updatedUser);
+    saveRememberedAccount(updatedUser);
 
     if (isFirebaseConfigured && db && auth?.currentUser) {
       try {
         const userRef = doc(db, 'users', currentUser.uid);
         await updateDoc(userRef, {
-          ...(displayName !== undefined && { displayName }),
+          displayName: updatedUser.displayName,
           ...(photoURL !== undefined && { photoURL }),
           ...(bio !== undefined && { bio }),
           ...(gender !== undefined && { gender }),
         });
       } catch (e) {
-        console.warn('Failed to update profile in Firestore:', e);
+        console.error('Failed to update Firestore profile:', e);
       }
     } else {
       const users = getStoredDemoUsers();
-      const nextList = users.map(u => u.uid === currentUser.uid ? updatedUser : u);
-      updateDemoUsersList(nextList);
+      updateDemoUsersList(users.map(u => u.uid === currentUser.uid ? updatedUser : u));
     }
   };
 
-  // Toggle user admin role (For Admin Page)
-  const toggleUserRole = async (targetUid) => {
-    if (!currentUser?.isAdmin) return;
-
-    if (isFirebaseConfigured && db) {
-      try {
-        const userRef = doc(db, 'users', targetUid);
-        const targetDoc = await getDoc(userRef);
-        if (targetDoc.exists()) {
-          const currentRole = targetDoc.data().role;
-          const newRole = currentRole === 'admin' ? 'user' : 'admin';
-          await updateDoc(userRef, { role: newRole });
-        }
-      } catch (e) {
-        console.error('Failed to update role in Firestore:', e);
-      }
-    } else {
-      const users = getStoredDemoUsers();
-      const nextList = users.map(u => {
-        if (u.uid === targetUid) {
-          const newRole = u.role === 'admin' ? 'user' : 'admin';
-          return { ...u, role: newRole };
-        }
-        return u;
-      });
-      updateDemoUsersList(nextList);
-
-      if (currentUser.uid === targetUid) {
-        const updatedSelf = nextList.find(u => u.uid === targetUid);
-        setCurrentUser({ ...updatedSelf, isAdmin: updatedSelf.role === 'admin' });
-      }
-    }
-  };
-
-  // Grant current user admin role
-  const grantSelfAdmin = () => {
-    if (!currentUser) return;
-    const updated = { ...currentUser, role: 'admin', isAdmin: true };
-    setCurrentUser(updated);
-    if (!isFirebaseConfigured) {
-      const users = getStoredDemoUsers();
-      const nextList = users.map(u => u.uid === currentUser.uid ? updated : u);
-      updateDemoUsersList(nextList);
-    }
-  };
-
-  // Logout Function
+  // Logout current user session
   const logoutUser = async () => {
     if (isFirebaseConfigured && auth) {
-      if (currentUser && db) {
-        try {
-          const userRef = doc(db, 'users', currentUser.uid);
-          await updateDoc(userRef, { isOnline: false, lastActiveAt: new Date().toISOString() });
-        } catch (e) {
-          console.warn(e);
-        }
-      }
       await signOut(auth);
     } else {
       if (currentUser) {
         const users = getStoredDemoUsers();
-        const nextList = users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u);
-        updateDemoUsersList(nextList);
+        updateDemoUsersList(users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u));
       }
       setCurrentUser(null);
     }
@@ -531,24 +445,18 @@ export function AuthProvider({ children }) {
   const isUserAdmin = 
     currentUser?.role === 'admin' || 
     currentUser?.role === 'owner' || 
-    currentUser?.email === MAIN_ADMIN_EMAIL || 
-    currentUser?.email?.includes('harshithajm70') ||
+    currentUser?.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase() || 
     currentUser?.isAdmin;
 
-  // Delete user account function (Main Admin & Owner action)
+  // Delete user account function (Main Admin action)
   const deleteUserAccount = async (targetUid) => {
     if (!isUserAdmin) {
-      alert('Only Administrators and Main System Owner can delete users.');
-      return false;
-    }
-
-    if (targetUid === currentUser?.uid) {
-      alert('You cannot delete your own active account.');
+      alert('Only Administrators can delete users.');
       return false;
     }
 
     const targetUser = allUsers.find(u => u.uid === targetUid);
-    if (targetUser?.email === MAIN_ADMIN_EMAIL || targetUser?.role === 'owner') {
+    if (targetUser?.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase() || targetUser?.role === 'owner') {
       alert('The Main System Owner account is protected and cannot be deleted.');
       return false;
     }
@@ -560,6 +468,7 @@ export function AuthProvider({ children }) {
 
       const nextList = allUsers.filter(u => u.uid !== targetUid);
       updateDemoUsersList(nextList);
+      if (targetUser?.email) removeRememberedAccount(targetUser.email);
       return true;
     } catch (e) {
       console.error('Error deleting user account:', e);
@@ -573,18 +482,18 @@ export function AuthProvider({ children }) {
     loading,
     allUsers,
     authError,
+    rememberedAccounts,
+    saveRememberedAccount,
+    removeRememberedAccount,
     isFirebaseConfigured,
     isAdmin: isUserAdmin,
-    isOwner: currentUser?.role === 'owner' || currentUser?.email === MAIN_ADMIN_EMAIL,
+    isOwner: currentUser?.role === 'owner' || currentUser?.email?.toLowerCase() === MAIN_ADMIN_EMAIL.toLowerCase(),
     loginWithGoogle,
     loginWithEmailPassword,
     registerWithEmailPassword,
     updateUserProfile,
-    grantSelfAdmin,
     logoutUser,
     switchDemoUser,
-    addSimulatedGoogleUser,
-    toggleUserRole,
     deleteUserAccount
   };
 

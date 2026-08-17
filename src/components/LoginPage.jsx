@@ -8,15 +8,14 @@ export default function LoginPage({ onLoginSuccess }) {
     loginWithEmailPassword, 
     registerWithEmailPassword, 
     updateUserProfile,
-    grantSelfAdmin,
     logoutUser,
     switchDemoUser,
-    allUsers,
-    isFirebaseConfigured,
+    rememberedAccounts,
+    removeRememberedAccount,
     authError 
   } = useAuth();
 
-  const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
+  const [mode, setMode] = useState('saved_accounts'); // 'saved_accounts', 'signin', 'signup'
   
   // Sign in fields
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -27,10 +26,7 @@ export default function LoginPage({ onLoginSuccess }) {
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
-
-  // Account Settings / Profile State
-  const [activeTab, setActiveTab] = useState('profile');
-  const [settingsSearch, setSettingsSearch] = useState('');
+  const [regPhotoBase64, setRegPhotoBase64] = useState('');
 
   // Editable Profile fields
   const [nameInput, setNameInput] = useState('');
@@ -44,6 +40,35 @@ export default function LoginPage({ onLoginSuccess }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [saveNotice, setSaveNotice] = useState('');
+
+  // Automatically set mode to saved_accounts if remembered accounts exist
+  useEffect(() => {
+    if (!currentUser) {
+      if (rememberedAccounts && rememberedAccounts.length > 0) {
+        setMode('saved_accounts');
+      } else {
+        setMode('signup');
+      }
+    }
+  }, [currentUser, rememberedAccounts]);
+
+  // Image File Picker Handler (Base64 conversion)
+  const handleLocalImageUpload = (e, setTargetState) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Image file size must be smaller than 5 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setTargetState(reader.result);
+      setErrorMsg('');
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Sync profile fields with currentUser
   useEffect(() => {
@@ -106,7 +131,7 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       setLoading(true);
       setErrorMsg('');
-      await registerWithEmailPassword(regUsername, regEmail, regPassword);
+      await registerWithEmailPassword(regUsername, regEmail, regPassword, regPhotoBase64);
       setSuccessMsg('Account created successfully! Welcome to Smart Alarm.');
       if (onLoginSuccess) onLoginSuccess();
     } catch (err) {
@@ -275,15 +300,15 @@ export default function LoginPage({ onLoginSuccess }) {
                         </button>
                       </div>
                       <div className="avatar-info">
-                        <label className="form-label">Profile Image URL</label>
+                        <label className="form-label">Profile Image (Upload Local File)</label>
                         <input 
-                          type="text" 
-                          value={photoInput} 
-                          onChange={e => setPhotoInput(e.target.value)}
-                          placeholder="https://images.unsplash.com/..."
+                          type="file" 
+                          accept="image/*"
+                          onChange={e => handleLocalImageUpload(e, setPhotoInput)}
                           className="form-input"
+                          style={{ padding: '6px' }}
                         />
-                        <span className="form-hint">Enter an image URL or click 📷 to choose photo.</span>
+                        <span className="form-hint">📁 Select any photo from your device storage (.jpg, .png, .webp). No URL needed!</span>
                       </div>
                     </div>
 
@@ -584,6 +609,14 @@ export default function LoginPage({ onLoginSuccess }) {
           /* Sign In / Create Account Card (When signed out) */
           <div className="auth-card-full">
             <div className="auth-tabs">
+              {rememberedAccounts.length > 0 && (
+                <button 
+                  className={`tab-btn ${mode === 'saved_accounts' ? 'active' : ''}`}
+                  onClick={() => { setMode('saved_accounts'); setErrorMsg(''); }}
+                >
+                  Saved Accounts ({rememberedAccounts.length})
+                </button>
+              )}
               <button 
                 className={`tab-btn ${mode === 'signin' ? 'active' : ''}`}
                 onClick={() => { setMode('signin'); setErrorMsg(''); }}
@@ -609,134 +642,212 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
             )}
 
-            <button 
-              type="button" 
-              className="btn-google-login"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" className="google-svg">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-              </svg>
-              <span>{loading ? 'Connecting...' : 'Sign in with Google Account'}</span>
-            </button>
+            {mode === 'saved_accounts' && rememberedAccounts.length > 0 ? (
+              <div className="instagram-accounts-container animate-fadeIn">
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, textAlign: 'center', margin: '10px 0 4px', color: 'var(--text-primary)' }}>
+                  Instagram-Style Account Switcher
+                </h3>
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '20px' }}>
+                  Click your account to log in instantly
+                </p>
 
-            <div className="auth-divider">
-              <span>OR</span>
-            </div>
+                <div className="saved-accounts-grid">
+                  {rememberedAccounts.map(acc => (
+                    <div key={acc.email} className="instagram-account-card">
+                      <button
+                        type="button"
+                        className="remove-acc-btn"
+                        onClick={(e) => { e.stopPropagation(); removeRememberedAccount(acc.email); }}
+                        title="Forget account"
+                      >
+                        ✕
+                      </button>
 
-            {mode === 'signin' ? (
-              <form onSubmit={handleSignInSubmit} className="auth-form">
-                <div className="form-field">
-                  <label>Username or Email Address</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">👤</span>
-                    <input 
-                      type="text"
-                      placeholder="e.g. alex or name@example.com"
-                      value={loginIdentifier}
-                      onChange={e => setLoginIdentifier(e.target.value)}
-                      required
-                    />
-                  </div>
+                      <img 
+                        src={acc.photoURL} 
+                        alt={acc.displayName} 
+                        className="acc-avatar-img"
+                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.displayName)}&background=6366f1&color=fff`; }}
+                      />
+
+                      <h4 className="acc-name">{acc.displayName}</h4>
+                      <span className="acc-email">{acc.email}</span>
+
+                      {acc.role === 'owner' ? (
+                        <span className="owner-badge">👑 Main Admin</span>
+                      ) : (
+                        <span className="user-badge">👤 User Account</span>
+                      )}
+
+                      <button 
+                        type="button" 
+                        className="btn btn-primary btn-sm btn-continue-acc"
+                        onClick={() => switchDemoUser(acc.uid || acc.email)}
+                      >
+                        Continue as {acc.displayName.split(' ')[0]} →
+                      </button>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="form-field">
-                  <label>Password</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">🔒</span>
-                    <input 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter password"
-                      value={loginPassword}
-                      onChange={e => setLoginPassword(e.target.value)}
-                      required
-                    />
-                    <button 
-                      type="button"
-                      className="eye-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? '👁️' : '🙈'}
-                    </button>
-                  </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '24px', justifyContent: 'center' }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setMode('signin')}>
+                    🔑 Log Into Another Account
+                  </button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setMode('signup')}>
+                    ✨ Create New Account
+                  </button>
                 </div>
-
-                <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
-                  {loading ? 'Authenticating...' : 'Sign In with Username'}
-                </button>
-              </form>
+              </div>
             ) : (
-              <form onSubmit={handleSignUpSubmit} className="auth-form">
-                <div className="form-field">
-                  <label>Full Name / Username</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">👤</span>
-                    <input 
-                      type="text"
-                      placeholder="e.g. Alex Rivers"
-                      value={regUsername}
-                      onChange={e => setRegUsername(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label>Email Address</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">✉️</span>
-                    <input 
-                      type="email"
-                      placeholder="name@example.com"
-                      value={regEmail}
-                      onChange={e => setRegEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label>Password</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">🔒</span>
-                    <input 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="At least 6 characters"
-                      value={regPassword}
-                      onChange={e => setRegPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label>Confirm Password</label>
-                  <div className="input-with-icon">
-                    <span className="field-icon">🔒</span>
-                    <input 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Repeat password"
-                      value={regConfirmPassword}
-                      onChange={e => setRegConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
-                  {loading ? 'Creating Account...' : 'Register Account'}
+              <>
+                <button 
+                  type="button" 
+                  className="btn-google-login"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" className="google-svg">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>{loading ? 'Connecting...' : 'Sign in with Google Account'}</span>
                 </button>
-              </form>
+
+                <div className="auth-divider">
+                  <span>OR</span>
+                </div>
+
+                {mode === 'signin' ? (
+                  <form onSubmit={handleSignInSubmit} className="auth-form">
+                    <div className="form-field">
+                      <label>Username or Email Address</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">👤</span>
+                        <input 
+                          type="text"
+                          placeholder="e.g. alex or name@example.com"
+                          value={loginIdentifier}
+                          onChange={e => setLoginIdentifier(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Password</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">🔒</span>
+                        <input 
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter password"
+                          value={loginPassword}
+                          onChange={e => setLoginPassword(e.target.value)}
+                          required
+                        />
+                        <button 
+                          type="button"
+                          className="eye-toggle"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? '👁️' : '🙈'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
+                      {loading ? 'Authenticating...' : 'Sign In with Username'}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleSignUpSubmit} className="auth-form">
+                    <div className="form-field">
+                      <label>Full Name / Username</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">👤</span>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Alex Rivers"
+                          value={regUsername}
+                          onChange={e => setRegUsername(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Email Address</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">✉️</span>
+                        <input 
+                          type="email"
+                          placeholder="name@example.com"
+                          value={regEmail}
+                          onChange={e => setRegEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Profile Picture (Upload Local File)</label>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={e => handleLocalImageUpload(e, setRegPhotoBase64)}
+                        className="form-input"
+                        style={{ padding: '6px' }}
+                      />
+                      {regPhotoBase64 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '6px' }}>
+                          <img src={regPhotoBase64} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                          <span style={{ fontSize: '0.78rem', color: '#10B981', fontWeight: 700 }}>✅ Photo Attached</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="form-field">
+                      <label>Password</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">🔒</span>
+                        <input 
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="At least 6 characters"
+                          value={regPassword}
+                          onChange={e => setRegPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-field">
+                      <label>Confirm Password</label>
+                      <div className="input-with-icon">
+                        <span className="field-icon">🔒</span>
+                        <input 
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Repeat password"
+                          value={regConfirmPassword}
+                          onChange={e => setRegConfirmPassword(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary btn-auth-submit" disabled={loading}>
+                      {loading ? 'Creating Account...' : 'Register Account'}
+                    </button>
+                  </form>
+                )}
+              </>
             )}
           </div>
         )}
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .login-page-container {
           position: relative;
           min-height: calc(100vh - 80px);
@@ -772,7 +883,6 @@ export default function LoginPage({ onLoginSuccess }) {
           font-size: 1.1rem; font-weight: 800; color: var(--text-primary);
         }
 
-        /* 2-Column Settings Portal matching reference layout */
         .settings-main-layout {
           display: flex;
           background: var(--bg-surface);
@@ -783,7 +893,6 @@ export default function LoginPage({ onLoginSuccess }) {
           box-shadow: var(--shadow-xl);
         }
 
-        /* Left Sidebar Menu */
         .settings-sidebar {
           width: 330px;
           flex-shrink: 0;
@@ -800,10 +909,7 @@ export default function LoginPage({ onLoginSuccess }) {
         }
 
         .user-title-header {
-          font-size: 1.35rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          letter-spacing: -0.3px;
+          font-size: 1.25rem; font-weight: 800; color: var(--text-primary);
         }
 
         .sidebar-search-box {
@@ -813,57 +919,28 @@ export default function LoginPage({ onLoginSuccess }) {
         }
 
         .search-icon {
-          position: absolute;
-          left: 12px;
-          font-size: 0.85rem;
-          opacity: 0.6;
+          position: absolute; left: 10px; font-size: 0.85rem; color: var(--text-muted);
         }
 
-        .search-input {
-          width: 100%;
-          padding: 10px 32px 10px 36px;
-          font-size: 0.88rem;
-          border-radius: 12px;
-          border: 1px solid var(--border-color);
-          background: var(--bg-surface);
-          color: var(--text-primary);
-          transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-          outline: none;
-          border-color: #10b981;
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        .sidebar-search-box input {
+          width: 100%; padding: 8px 30px; font-size: 0.84rem;
+          border-radius: 10px; border: 1px solid var(--border-color);
+          background: var(--bg-surface); color: var(--text-primary);
         }
 
         .clear-search-btn {
-          position: absolute;
-          right: 10px;
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          font-size: 0.8rem;
+          position: absolute; right: 8px; background: none; border: none;
+          color: var(--text-muted); cursor: pointer; font-size: 0.8rem;
         }
 
         .sidebar-menu-list {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          overflow-y: auto;
-          flex: 1;
+          display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1;
         }
 
         .menu-item-btn {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 12px 14px;
-          border-radius: 12px;
-          border: none;
-          background: none;
-          text-align: left;
-          cursor: pointer;
+          display: flex; align-items: center; gap: 12px;
+          padding: 10px 12px; border-radius: 12px; border: none;
+          background: transparent; text-align: left; cursor: pointer;
           transition: all 0.15s ease;
         }
 
@@ -872,283 +949,121 @@ export default function LoginPage({ onLoginSuccess }) {
         }
 
         .menu-item-btn.active {
-          background: rgba(16, 185, 129, 0.12);
-          border: 1px solid rgba(16, 185, 129, 0.3);
+          background: var(--bg-surface);
+          box-shadow: var(--shadow-sm);
         }
 
         .menu-item-icon {
-          font-size: 1.25rem;
-          flex-shrink: 0;
+          font-size: 1.25rem; width: 28px; text-align: center;
         }
 
         .menu-item-text {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          min-width: 0;
+          display: flex; flex-direction: column; min-width: 0;
         }
 
         .menu-item-title {
-          font-size: 0.92rem;
-          font-weight: 700;
-          color: var(--text-primary);
+          font-size: 0.88rem; font-weight: 700; color: var(--text-primary);
         }
 
         .menu-item-sub {
-          font-size: 0.76rem;
-          color: var(--text-muted);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          font-size: 0.72rem; color: var(--text-muted);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .menu-item-btn.logout-item {
-          margin-top: auto;
-          border-top: 1px solid var(--border-color);
-          border-radius: 12px;
-          padding-top: 14px;
-        }
+        .logout-item { margin-top: auto; }
+        .red-text { color: #ef4444 !important; }
 
-        .menu-item-btn.logout-item:hover {
-          background: rgba(239, 68, 68, 0.08);
-        }
-
-        .red-text {
-          color: #ef4444 !important;
-        }
-
-        /* Right Content Panel */
         .settings-content-area {
-          flex: 1;
-          padding: 32px 36px;
-          overflow-y: auto;
+          flex: 1; padding: 28px 32px; overflow-y: auto; background: var(--bg-surface);
         }
 
         .settings-tab-panel {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          max-width: 620px;
+          display: flex; flex-direction: column; gap: 20px;
         }
 
         .panel-header h2 {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 4px;
+          font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-bottom: 2px;
         }
 
         .panel-header p {
-          font-size: 0.88rem;
-          color: var(--text-muted);
+          font-size: 0.84rem; color: var(--text-muted);
         }
 
         .profile-edit-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
+          display: flex; flex-direction: column; gap: 18px; max-width: 580px;
         }
 
-        /* Avatar Edit Section */
         .avatar-edit-section {
-          display: flex;
-          align-items: center;
-          gap: 20px;
+          display: flex; align-items: center; gap: 18px;
         }
 
         .avatar-preview-box {
-          position: relative;
-          width: 90px;
-          height: 90px;
-          flex-shrink: 0;
+          position: relative; width: 72px; height: 72px; flex-shrink: 0;
         }
 
         .avatar-preview-img {
-          width: 90px;
-          height: 90px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 3px solid var(--color-primary);
-          box-shadow: var(--shadow-md);
+          width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+          border: 3px solid var(--color-primary); box-shadow: var(--shadow-md);
         }
 
         .avatar-change-btn {
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background: var(--color-primary);
-          color: white;
-          border: 2px solid var(--bg-surface);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.85rem;
-          cursor: pointer;
+          position: absolute; bottom: 0; right: 0;
+          width: 26px; height: 26px; border-radius: 50%;
+          background: var(--color-primary); color: white; border: 2px solid var(--bg-surface);
+          cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
         }
 
-        .avatar-info {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .form-divider {
-          height: 1px;
-          background: var(--border-color);
-          margin: 4px 0;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .form-label {
-          font-size: 0.84rem;
-          font-weight: 700;
-          color: var(--text-primary);
-        }
-
+        .avatar-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .form-label { font-size: 0.84rem; font-weight: 700; color: var(--text-primary); }
         .form-input {
-          padding: 11px 14px;
-          font-size: 0.92rem;
-          border-radius: 10px;
-          border: 1px solid var(--border-color);
-          background: var(--bg-input);
-          color: var(--text-primary);
-          font-weight: 600;
-          transition: border-color 0.2s;
+          padding: 10px 14px; font-size: 0.88rem; border-radius: 10px;
+          border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary);
         }
-
-        .form-input:focus {
-          outline: none;
-          border-color: var(--color-primary);
-          background: var(--bg-surface);
-        }
-
         .form-textarea {
-          padding: 11px 14px;
-          font-size: 0.92rem;
-          border-radius: 10px;
-          border: 1px solid var(--border-color);
-          background: var(--bg-input);
-          color: var(--text-primary);
-          font-weight: 500;
-          resize: vertical;
+          padding: 10px 14px; font-size: 0.88rem; border-radius: 10px;
+          border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary);
+          font-family: inherit; font-weight: 500; resize: vertical;
         }
 
-        .form-textarea:focus {
-          outline: none;
-          border-color: var(--color-primary);
-          background: var(--bg-surface);
-        }
-
-        .form-hint {
-          font-size: 0.76rem;
-          color: var(--text-muted);
-          line-height: 1.35;
-        }
-
-        /* Gender selector grid */
-        .gender-selector-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 8px;
-        }
-
+        .form-hint { font-size: 0.76rem; color: var(--text-muted); line-height: 1.35; }
+        .gender-selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .gender-chip-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 14px;
-          border-radius: 10px;
-          border: 1px solid var(--border-color);
-          background: var(--bg-input);
-          color: var(--text-primary);
-          font-size: 0.86rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s ease;
+          display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+          border-radius: 10px; border: 1px solid var(--border-color);
+          background: var(--bg-input); color: var(--text-primary); font-size: 0.86rem;
+          font-weight: 600; cursor: pointer; transition: all 0.15s ease;
         }
-
-        .gender-chip-btn:hover {
-          border-color: var(--color-primary);
-        }
-
         .gender-chip-btn.selected {
-          background: rgba(99, 102, 241, 0.15);
-          border-color: var(--color-primary);
-          color: var(--color-primary);
-          font-weight: 700;
+          background: rgba(99, 102, 241, 0.15); border-color: var(--color-primary); color: var(--color-primary); font-weight: 700;
         }
 
-        .btn-save-profile {
-          padding: 13px 24px;
-          font-size: 0.95rem;
-          font-weight: 700;
-          border-radius: 12px;
-          cursor: pointer;
-        }
+        .btn-save-profile { padding: 13px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 12px; cursor: pointer; }
 
-        /* Other setting cards */
         .setting-card-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 18px;
-          background: var(--bg-input);
-          border: 1px solid var(--border-color);
-          border-radius: 14px;
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 16px 18px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 14px;
         }
-
-        .setting-info h4 {
-          font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px;
-        }
-        .setting-info p {
-          font-size: 0.78rem; color: var(--text-muted);
-        }
-
+        .setting-info h4 { font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .setting-info p { font-size: 0.78rem; color: var(--text-muted); }
         .form-select {
           padding: 8px 12px; font-size: 0.85rem; border-radius: 8px;
           border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-primary);
         }
-
         .account-details-box {
           display: flex; flex-direction: column; gap: 12px;
           padding: 18px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 14px;
         }
-
         .acc-row { display: flex; justify-content: space-between; font-size: 0.88rem; }
         .acc-label { color: var(--text-muted); font-weight: 600; }
         .acc-val { color: var(--text-primary); font-weight: 700; }
         .code-font { font-family: monospace; font-size: 0.8rem; }
-
-        .quick-switch-box h3 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
-        .user-chips-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip-btn {
-          display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-          border-radius: 16px; border: 1px solid var(--border-color);
-          background: var(--bg-surface); font-size: 0.82rem; color: var(--text-primary); cursor: pointer;
-        }
-        .chip-btn.active { border-color: var(--color-primary); background: rgba(99, 102, 241, 0.15); }
-        .chip-img { width: 20px; height: 20px; border-radius: 50%; }
 
         .shortcuts-list-grid { display: flex; flex-direction: column; gap: 10px; }
         .shortcut-row {
           display: flex; justify-content: space-between; padding: 10px 14px;
           background: var(--bg-input); border-radius: 10px; font-size: 0.88rem;
         }
-        kbd {
-          background: var(--bg-surface); border: 1px solid var(--border-color);
-          padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; font-family: monospace;
-        }
 
-        /* Signed Out Auth Card */
         .auth-card-full {
           background: var(--bg-surface);
           border: 1px solid var(--border-color);
@@ -1185,14 +1100,28 @@ export default function LoginPage({ onLoginSuccess }) {
         }
         .eye-toggle { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 0.9rem; }
 
-        .quick-switch-section { border-top: 1px solid var(--border-color); pt-3; display: flex; flex-direction: column; gap: 8px; }
-        .user-chip-btn { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--bg-input); font-size: 0.78rem; cursor: pointer; }
+        .instagram-accounts-container { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .saved-accounts-grid { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+        .instagram-account-card {
+          position: relative; display: flex; flex-direction: column; align-items: center;
+          padding: 20px 16px 16px; background: var(--bg-input); border: 1px solid var(--border-color);
+          border-radius: 16px; text-align: center; transition: all 0.2s ease;
+        }
+        .instagram-account-card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-md); }
+        .remove-acc-btn { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 4px; }
+        .remove-acc-btn:hover { color: #ef4444; }
+        .acc-avatar-img { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-primary); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); margin-bottom: 8px; }
+        .acc-name { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin: 0; }
+        .acc-email { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+        .owner-badge { font-size: 0.68rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #D97706; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+        .user-badge { font-size: 0.68rem; font-weight: 800; background: rgba(99, 102, 241, 0.15); color: var(--color-primary); border: 1px solid rgba(99, 102, 241, 0.3); padding: 2px 8px; border-radius: 10px; margin-bottom: 12px; }
+        .btn-continue-acc { width: 100%; padding: 10px 16px; font-weight: 700; border-radius: 10px; }
 
         @media (max-width: 768px) {
           .settings-main-layout { flex-direction: column; }
           .settings-sidebar { width: 100%; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
