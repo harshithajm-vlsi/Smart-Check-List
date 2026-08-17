@@ -88,7 +88,14 @@ export default function Sidebar({ activeSection, setActiveSection, onOpenAuthMod
 
         {/* Footer */}
         {!collapsed && (
-          <div className="sidebar-footer" onClick={onOpenAuthModal} title="Click to manage account">
+          <div 
+            className="sidebar-footer" 
+            onClick={() => {
+              setActiveSection('login');
+              setMobileOpen(false);
+            }} 
+            title="Click to open Profile & Account Settings"
+          >
             <div className="sidebar-user">
               {currentUser?.photoURL ? (
                 <img 
@@ -107,7 +114,7 @@ export default function Sidebar({ activeSection, setActiveSection, onOpenAuthMod
                   {currentUser?.displayName || 'Sign In'}
                 </div>
                 <div className="sidebar-user-role">
-                  {currentUser?.isAdmin ? '👑 Admin' : currentUser ? 'Google Account' : 'Click to Sign In'}
+                  {currentUser?.isAdmin ? '👑 Admin' : currentUser ? (currentUser.bio ? `💬 ${currentUser.bio.substring(0, 18)}...` : 'Google Account') : 'Click to Sign In'}
                 </div>
               </div>
             </div>

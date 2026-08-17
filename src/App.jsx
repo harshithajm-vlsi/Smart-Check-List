@@ -59,6 +59,7 @@ function MainApp() {
       <div className="app-content">
         <Header 
           activeSection={activeSection} 
+          setActiveSection={setActiveSection}
           theme={theme} 
           setTheme={setTheme}
           onOpenAuthModal={() => setAuthModalOpen(true)}
