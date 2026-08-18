@@ -67,13 +67,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
         <div style={{ position: 'relative' }}>
           <button 
             className="header-auth-btn" 
-            onClick={() => {
-              if (currentUser) {
-                setShowDropdown(!showDropdown);
-              } else if (setActiveSection) {
-                setActiveSection('login');
-              }
-            }}
+            onClick={() => setShowDropdown(!showDropdown)}
             title="Account Settings & Profile"
           >
             {currentUser?.photoURL ? (
@@ -87,7 +81,7 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
               <span className="auth-btn-icon">👤</span>
             )}
             <span className="auth-btn-name">
-              {currentUser ? (currentUser.displayName || currentUser.email?.split('@')[0] || 'User').split(' ')[0] : 'Sign In'}
+              {(currentUser?.displayName || currentUser?.email?.split('@')[0] || 'User').split(' ')[0]}
             </span>
           </button>
 
@@ -124,16 +118,6 @@ export default function Header({ activeSection, setActiveSection, theme, setThem
                 }}
               >
                 🔗 Copy Shareable Link
-              </button>
-
-              <button 
-                className="dropdown-item-btn"
-                onClick={() => {
-                  setShowDropdown(false);
-                  if (setActiveSection) setActiveSection('login');
-                }}
-              >
-                ⚙️ Edit Profile & Account Settings
               </button>
 
               <button 

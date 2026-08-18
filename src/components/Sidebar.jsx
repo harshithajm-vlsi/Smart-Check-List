@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { id: 'scheduler',   label: 'Scheduler',    icon: '🗓️' },
   { id: 'calendar',    label: 'Tamil Calendar', icon: '🗓️' },
   { id: 'stats',       label: 'Analytics',    icon: '📊' },
-  { id: 'login',       label: 'Login / Account', icon: '🔑' },
 ];
 
 export default function Sidebar({ activeSection, setActiveSection, onOpenAuthModal }) {
@@ -90,11 +89,7 @@ export default function Sidebar({ activeSection, setActiveSection, onOpenAuthMod
         {!collapsed && (
           <div 
             className="sidebar-footer" 
-            onClick={() => {
-              setActiveSection('login');
-              setMobileOpen(false);
-            }} 
-            title="Click to open Profile & Account Settings"
+            title="User Profile"
           >
             <div className="sidebar-user">
               {currentUser?.photoURL ? (

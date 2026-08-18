@@ -139,7 +139,8 @@ export function AuthProvider({ children }) {
           const finalUser = { ...userData, isAdmin: userRole === 'admin' || userRole === 'owner' };
           setCurrentUser(finalUser);
         } else {
-          setCurrentUser(null);
+          const defaultUser = { ...INITIAL_DEMO_USERS[0], isAdmin: true };
+          setCurrentUser(defaultUser);
         }
         setLoading(false);
       });
@@ -159,7 +160,8 @@ export function AuthProvider({ children }) {
     } else {
       const demoUsers = getStoredDemoUsers();
       updateDemoUsersList(demoUsers);
-      setCurrentUser(null);
+      const defaultUser = { ...INITIAL_DEMO_USERS[0], isAdmin: true };
+      setCurrentUser(defaultUser);
       setLoading(false);
     }
   }, [isFirebaseConfigured]);
@@ -357,7 +359,7 @@ export function AuthProvider({ children }) {
       const users = getStoredDemoUsers();
       updateDemoUsersList(users.map(u => u.uid === currentUser.uid ? { ...u, isOnline: false } : u));
     }
-    setCurrentUser(null);
+    setCurrentUser({ ...INITIAL_DEMO_USERS[0], isAdmin: true });
   };
 
   const isUserAdmin = 

@@ -8,8 +8,6 @@ import Scheduler from './components/Scheduler';
 import TamilCalendarView from './components/TamilCalendarView';
 import ProductivityStats from './components/ProductivityStats';
 import AdminPortal from './components/AdminPortal';
-import LoginModal from './components/LoginModal';
-import LoginPage from './components/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
@@ -103,7 +101,6 @@ function MainApp() {
   const { currentUser, loading } = useAuth();
   const [theme, setTheme] = useState(() => localStorage.getItem('sa_theme') || 'light');
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -129,15 +126,6 @@ function MainApp() {
     );
   }
 
-  // Unauthenticated users -> Redirect directly to Sign Up / Login Page
-  if (!currentUser) {
-    return (
-      <div className="unauth-app-wrapper" style={{ minHeight: '100vh', background: 'var(--bg-app)' }}>
-        <LoginPage onLoginSuccess={() => setActiveSection('dashboard')} />
-      </div>
-    );
-  }
-
   const renderSection = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -155,8 +143,6 @@ function MainApp() {
         return <ProductivityStats />;
       case 'admin':
         return <AdminPortal />;
-      case 'login':
-        return <LoginPage onLoginSuccess={() => setActiveSection('dashboard')} />;
       default:
         return <Dashboard setActiveSection={setActiveSection} />;
     }
@@ -167,7 +153,6 @@ function MainApp() {
       <Sidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection}
-        onOpenAuthModal={() => setAuthModalOpen(true)}
       />
       <div className="app-content">
         <Header 
@@ -175,17 +160,11 @@ function MainApp() {
           setActiveSection={setActiveSection}
           theme={theme} 
           setTheme={setTheme}
-          onOpenAuthModal={() => setAuthModalOpen(true)}
         />
         <main className="app-main">
           {renderSection()}
         </main>
       </div>
-
-      <LoginModal 
-        isOpen={authModalOpen} 
-        onClose={() => setAuthModalOpen(false)} 
-      />
     </div>
   );
 }
